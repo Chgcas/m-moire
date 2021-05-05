@@ -1,0 +1,1422 @@
+\documentclass[11pt,a4paper,oneside]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{dsfont} % Pour l'utilisation de la commande \mathds
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+	pdftitle={Feuille de TD 2. Régression linéaire},
+	pdfborder={0 0 0},
+	breaklinks=true}
+\usepackage{varioref}
+\usepackage{color}
+\usepackage{fancyvrb}
+\usepackage{fancyvrb}
+\usepackage{fancyhdr}
+\usepackage{geometry}
+\usepackage{tabto}
+\usepackage{url}
+\usepackage[authoryear]{natbib}
+
+\newtheorem*{lemme1}{Lemme 2.2.1}
+\newtheorem*{lemme2}{Lemme 2.2.2}
+\newtheorem*{lemme3}{Lemme 2.2.3}
+\newtheorem*{lemme4}{Lemme 2.2.4}
+\newtheorem*{theoreme}{Théorème de Berry-Esseen}
+
+\geometry{hmargin=3cm,vmargin=4cm}
+\pagestyle{fancy}
+\lhead{ Mémoire}
+\chead{}
+\rhead{M1 Mathématiques appliquées}
+\lfoot{Université Paris Dauphine}
+\cfoot{\thepage}
+\rfoot{2021}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\usepackage{natbib}
+\begin{filecontents}{sample.bib} 
+
+@book{pa,
+  title = {{Convergence of Probability Measures, Patrick Billingsley}},
+  isbn = {0-471-19745-9},
+  series = {Wiley series in probability and statistics},
+  year = {1999},
+  keywords = {patrick}
+}
+
+@book{pe,
+  title= {{Brownian Motion, Peter Mörters and Yuval Peres}},
+  keywords= {peter}
+}
+
+@book{w,
+  title={{An Introduction to Probability Theory and Its Applications, William Feller}},
+  keywords={william}
+}
+
+@misc{lien1,
+  title = {{Qu'est-ce que le mouvement brownien?}},
+  howpublished = "\url{https://fr.science-questions.org/questions_de_science/166/Qu_est-ce_que_le_mouvement_brownien/}"
+}
+
+@misc{lien2,
+  title = {{Le mouvement brownien}},
+  howpublished = "\url{http://www.astronoo.com/fr/articles/mouvement-brownien.html}"
+}
+
+@article{lien4,
+  title={{Le mouvement brownien et son histoire}},
+  howpublished = "\url{http://images.math.cnrs.fr/Le-mouvement-brownien-et-son.html}"
+}
+
+\end{filecontents}
+
+
+
+\author{Guillaume Cheung Ah Seung  \&  Ambroise Heurtebise  \&  Pierre Personnat}
+\title{Mémoire : approximation du mouvement brownien par une marche aléatoire}
+\date{\today}
+
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+\maketitle
+\tableofcontents
+
+
+%-------------------------------------------------------------------------------------------------------------------------%
+%-------------------------------------------------------------------------------------------------------------------------%
+%-------------------------------------------------------------------------------------------------------------------------%
+
+
+\chapter{Introduction au mouvement brownien}	
+	\section{Histoire et définition}
+	
+  Avant de devenir un objet mathématique vers la première moitié du XXème siècle grâce, entre autre, aux travaux de Louis Bachelier et de Norbert Wiener, le mouvement brownien est à l’origine un objet d’étude entre biologistes et physiciens. 
+
+ 
+
+On doit les premières observations en 1827 d’un mouvement, jusqu’alors inconnu, à Robert Brown, un éminent botaniste anglais du XIXème siècle, connu pour ses travaux sur l’étude des végétaux allant de la classification à l’anatomie des plantes.  
+
+ 
+
+À l’origine, c’est lors de l’étude microscopique de grains de pollen immergés dans l’eau que Brown observe un mouvement aléatoire, irrégulier mais continu, des particules microscopiques contenues à l’intérieur des grains de pollen. À première vue, il n’y a rien d’extraordinaire pour Brown qui pense voir ici une démonstration empirique de l’existence de molécules transportant le "vivant". 
+
+C’est en redoublant les expériences avec des particules de toute origine, organique et inorganique, mais de taille suffisamment petite (nous y reviendrons après) que Brown et la communauté scientifique réfuteront plus tard son hypothèse originelle.  
+
+ 
+
+Rappelons qu’à l’époque, le modèle de l’Atome n’existe pas tel que nous le connaissons aujourd’hui. C’est notamment grâce à l’observation d’un tel mouvement, maintenant dit "brownien", que le modèle de l’Atome fut explicité et démontré par Einstein et Jean Perrin au début du XXème siècle. 
+
+ 
+
+En réalité, les scientifiques comprirent lors de la deuxième moitié du XIXème que ce mouvement n’était dû qu’à l’existence même des atomes. On peut maintenant essayer de se rappeler nos cours de lycée. Dans l’eau liquide, comme dans tout autre liquide, on retrouve des millions de molécules de dihydrogène décollées les unes des autres qui profitent de leur espace pour se déplacer entre elles. Cette agitation thermique permanente, due à la chaleur stockée dans les molécules, entraîne un mouvement aléatoire des molécules. 
+
+ 
+
+On peut désormais se faire une meilleure idée de l’origine du mouvement brownien. Les particules exogènes insérées dans un fluide, comme les grains de pollen de Brown, rentrent en très fréquentes collisions avec les molécules d’eau qui vont appliquer une force à la particule lors de chaque choc. 
+
+Ces forces, aléatoires et irrégulières, vont logiquement entraîner un déplacement des particules, mais les chocs entre molécules et particules étant très nombreux, la particule est soumise à des forces variantes sans arrêt, et on va ainsi observer une trajectoire changeante sans arrêt de direction. 
+
+Une aubaine pour les mathématiciens de l’époque consiste à remarquer qu’en "zoomant" sur la trajectoire des particules, celle-ci deviendra plus régulière qu’en aperçu. Cette observation permettra la construction du mouvement brownien en mathématiques. Il est aussi intéressant de noter que la particule ayant autant de chance de se déplacer d’un côté comme de l’autre, en raison de l’imprévisibilité de la direction des chocs, son déplacement moyen sera nul. 
+
+ 
+
+On remarque également que le mouvement ne s’arrête jamais et qu’il dépend fortement de la viscosité du liquide et de la taille des particules. C’est pour cela que, si l’on plonge une pomme dans un sceau d’eau, elle ne se déplacera pas. Bien que les particules occupent davantage l’espace et rentrent plus souvent en collision avec les molécules d’eau, la masse importante des particules et l’aléa des chocs empêchera le mouvement brownien d’exister. On peut noter ici une illustration de la loi des grands nombres utilisant un processus qui compte le nombre de chocs. Pour la pomme, le nombre de chocs est très grand donc la somme des vecteurs qui représentent la force appliquée à cette pomme est proche du vecteur nul.  
+
+ 
+
+Revenons à l’aspect mathématique de ce mouvement brownien et à son approximation par des marches aléatoires. 
+
+Il est cohérent d’assimiler chaque collision entre particules et molécules comme un aléa "omega" qui va provoquer un "pas" de déplacement. Ce pas est totalement aléatoire, peut aller de haut en bas, de gauche à droite, puis revenir au point de départ. Plus important, chaque nouveau pas est indépendant des précédents.  
+
+Nous allons donc dans notre mémoire nous concentrer sur la construction d’un processus modélisant ces pas et qui approxime le mouvement brownien.  
+
+La version mathématique du mouvement brownien va être théorisée par Louis Bachelier et Norbert Wiener qui l’expliciteront comme une trajectoire fonctionnelle acceptable choisie sur l’ensemble des fonctions continues mais non dérivables presque surement. 
+
+Dans tout notre mémoire, nous allons nous concentrer sur l’étude du mouvement brownien en une dimension. 
+
+\paragraph{Problématique: }
+C’est dans sa thèse Théorie de la spéculation que Louis Bachelier établit le premier la loi du mouvement brownien à un instant donné. En étudiant le "mouvement" des prix d’actifs financiers et leur dynamique, il met en évidence l’absence relative de mémoire du mouvement brownien. Le déplacement du prix d’un actif à un temps t est indépendant de la façon dont le prix est arrivé à cet endroit au temps t.  
+
+Autrement dit, on retrouve ici la caractéristique markovienne du mouvement brownien ; si l’on cherche à prédire à une date s<t l’endroit où se situera le mouvement à l’instant t, la meilleure réponse est de garder la position actuelle. 
+
+Longtemps passés inaperçus et sous-évalués, les travaux de Bachelier vont connaître une notoriété croissante lors du XXème siècle, notamment grâce aux travaux de Kiyoshi Itô qui va définir une nouvelle intégrale pour réaliser des calculs sur le mouvement brownien. 
+
+Le modèle de Black & Scholes, déterminant dans la gestion dynamique de portefeuille à partir des années 70, est issu de ce mouvement. Il utilise des mouvements browniens multi-dimensionnelles. 
+  
+  \paragraph{Définition 1.1}
+  
+    Un processus stochastique réel $ \{ B(t) : t \geq 0 \} $ est appelé mouvement brownien avec condition initiale $ x \in \mathbb{R} $ s'il vérifie les conditions suivantes :
+			\begin{itemize}
+				\item $B(0)=x$ ;
+				\item le processus a des incréments indépendants,  i.e.  pour tous $0 \leq t_1 \leq t_2 \leq \dots \leq t_n $ les incréments 
+				$ B(t_n) - B(t_{n-1}),  \: B(t_{n-1}) - B(t_{n-2}),  \: \dots \: ,  \: B(t_2) - B(t_1) $ sont des variables aléatoires indépendantes ;
+				\item pour tout $ t \geq 0 $ et tout $ h > 0 $,  l'incrément $ B(t+h) - B(t) $ suit une loi $ \mathcal{N} (0,h) $ ;
+				\item Pour presque tout $\omega \in \Omega$, la fonction $B_t(\omega)$ est continue
+			\end{itemize}
+    
+    \noindent On dit que $ \{ B(t) : t \geq 0 \} $ est un mouvement brownien standard si $x=0$. 
+    
+
+%-------------------------------------------------------------------------------------------------------------------------%
+%-------------------------------------------------------------------------------------------------------------------------%
+
+
+	\section{Propriétés}
+  
+  
+  \paragraph{Propriétés d'invariance}
+    Si B est un mouvement brownien alors:
+    \begin{itemize}
+      \item (-B) est aussi un mouvement brownien
+      \item Pour tout $ \alpha \in \mathbb{R}, \left( \frac{1}{\alpha}B_{\alpha^2t} \right) $ est un mouvement brownien
+	  \end{itemize}
+	  
+	 
+	\paragraph{Irrégularité des trajectoires}
+	  \begin{itemize}
+	    \item Presque sûrement, les trajectoires du mouvement brownien ne sont à variation finie sur aucun intervalle non trivial;
+	    \item Soit $\alpha > \frac{1}{2}$. Presque sûrement, les trajectoires du mouvement brownien ne sont $\alpha$-holderiennes sur aucun intervalle non trivial;
+      \item Presque sûrement, les trajectoires du mouvement brownien ne sont nulle part dérivables;
+      \item Presque sûrement, $lim \; sup_{t \to \infty}B_{t} = +\infty \; et \; lim \; inf_{t \to \infty}B_{t} = -\infty $.
+	  \end{itemize}
+	  
+	  
+	 \paragraph{Théorème (Wiener 1923)}
+		  Le mouvement brownien existe.  
+
+
+%-------------------------------------------------------------------------------------------------------------------------%
+%-------------------------------------------------------------------------------------------------------------------------%
+
+
+	\section{Exemples d'applications}
+    Le mouvement brownien peut être étudié dans de nombreux domaines tels que la finance, l'astronomie, la médecine et il fut d'une grande importance historique pour confirmer l'hypothèse de l'atome.\\
+    En dynamique stellaire, les étoiles sont soumises à un ensemble de forces  gravitationnelles des corps environnants. En bourse, le prix de chaque actif fluctue. Ces phénomènes qui peuvent aller de la distribution des grains de sable sur une plage à la modélisation du processus de richesse dans un modèle financier sont ou peuvent s'expliquer par le mouvement brownien.  
+
+
+%-------------------------------------------------------------------------------------------------------------------------%
+%-------------------------------------------------------------------------------------------------------------------------%
+%-------------------------------------------------------------------------------------------------------------------------%
+
+
+\chapter{Théorème de Berry-Esseen}  
+  Dans cette deuxième partie, nous allons faire le lien entre marche aléatoire et mouvement brownien. Avant de construire ledit processus pour approximer le mouvement, il est essentiel de comprendre l’importance du théorème de Berry-Essen dans le rôle de convergence. Certes, le théorème central limite précise la convergence en loi de variables aléatoires sous certaines hypothèses, mais il ne nous permet pas de quantifier l’erreur de convergence. Le théorème de Berry-Esseen, démontré dans ce chapitre, va nous donner une borne de convergence afin de mieux illustrer graphiquement cette convergence dans notre dernière partie. 
+
+Pour cela, de nombreux lemmes d’analyse seront énoncés et démontrés en partie. 
+  \section{Énoncé du théorème}
+  
+    \begin{theoreme}
+			Soient $(X_k)_{k\geq0} $ des variables aléatoires réelles i.i.d. centrées de fonction de répartition F telles que $\mathbb{E}[X_1^2]=\sigma^2>0$ et \item $\mathbb{E}[\lvert X_1 \rvert^3]=\rho<+\infty$ .
+
+			\noindent On pose $Y_n= \sqrt{n}   \frac{     \frac{1}{n} \sum_{i=1}^n(X_i)}{\sigma} = \frac{X_1+...+X_n}{\sigma \sqrt{n}}$  et soit $F_n$ la fonction de répartition de $Y_n$. \\
+			Alors, $\forall n \geq1, \forall x\in \mathbb{R}  :$ \[  \lvert  F_n(x) - N(x)  \rvert   \leq  \frac{3\rho}{\sigma^3\sqrt{n}} \]
+			où N est la fonction de répartition de la loi $\mathcal{N}(0,1).$
+		\end{theoreme}
+
+
+%-------------------------------------------------------------------------------------------------------------------------%
+%-------------------------------------------------------------------------------------------------------------------------%
+
+
+  \section{Lemmes préliminaires}
+  
+    \begin{lemme1}
+    \hyperref[lemme1]{''link text''}
+			Soit $X$ une $v.a.r.$  de fonction de répartition $F$ et de fonction caractéristique $\phi$.  \\
+			Soit $G$ une fonction telle que $ G(-\infty)=0 ,   G(+\infty)=1$  et $\exists m >0, \forall x \in \mathds{R},  \vert \underbrace{G'(x)}_{=g(x)} \vert \leq m < +\infty $.  \\
+			De plus,  $g$ doit être intégrable et sa transformée de Fourier $\gamma$ doit vérifier : $ \gamma(0) = 1 $ et $ \gamma '(0) = 0 $.  \\
+			Alors,  $ \forall x \in \mathds{R},  \: \forall T>0 $,  on a l'inégalité suivante : 
+			\[
+			\vert F(x) - G(x) \vert \leq \frac{1}{\pi} \int_{-T}^T \left\vert \frac{\phi(s) - \gamma(s)}{s} \right\vert \mathrm{d}s + \frac{24m}{\pi T}.
+			\]
+		\end{lemme1}
+		
+		
+		
+		\begin{proof}
+			Admis.	
+		\end{proof}	
+		
+		
+		
+		\begin{lemme2}	
+			Pour $ n \in \mathds{N}^* $ et $ t>0 $,  
+			\[
+			\left\vert \mathrm{e}^{it} -1 - \frac{it}{1!} - \dots - \frac{(it)^{n-1}}{(n-1)!} \right\vert \leq \frac{t^n}{n!}.
+			\]
+		\end{lemme2}
+		
+		
+		
+		\begin{proof}
+			On pose : $ p_n(t) = \mathrm{e}^{it} -1 - \frac{it}{1!} - \dots - \frac{(it)^{n-1}}{(n-1)!} $.  \\
+			Montrons par récurrence que : $ \vert p_n(t) \vert \leq \frac{t^n}{n!},  \quad \forall n \geq 1, \forall t>0 $.  \\
+			On a :
+			\[
+			p_1(t) = \mathrm{e}^{it} -1 = i \int_0^t \mathrm{e}^{is} \mathrm{d}s
+			\]
+			donc
+			\[
+			\vert p_1(t) \vert = \left \vert \int_0^t \mathrm{e}^{is} \mathrm{d}s \right\vert 
+			\leq \int_0^t \underbrace{ \vert \mathrm{e}^{is} \vert }_{=1} \mathrm{d}s = t.
+			\]
+			Supposons la propriété vraie au rang $n-1$.  On a :
+			\begin{align}
+				\int_0^t p_{n-1}(s) \mathrm{d}s
+				& = \int_0^t \left( \mathrm{e}^{is} -1 - \frac{is}{1!} - \dots - \frac{(is)^{n-2}}{(n-2)!} \right) \mathrm{d}s \nonumber \\
+				& = \frac{\mathrm{e}^{it} - 1}{i} - t - \frac{it^2}{2!} - \dots - \frac{i^{n-2} t^{n-1}}{(n-1)!} \nonumber
+			\end{align}
+			donc 
+			\begin{align}
+				i \int_0^t p_{n-1}(s) \mathrm{d}s
+				& = \mathrm{e}^{it} - 1 - it - \dots - \frac{(it)^{n-1}}{(n-1)!} \nonumber \\
+				& = p_n(t), \nonumber
+			\end{align}
+			d'où
+			\begin{align}
+				\vert p_n(t) \vert 
+				& \stackrel{IT}{\leq} \int_0^t \vert p_{n-1} (s) \vert \mathrm{d}s \nonumber \\
+				& \leq \int_0^t \frac{s^{n-1}}{(n-1)!} \mathrm{d}s \tag{par hypothèse de récurrence} \nonumber \\
+				& = \frac{t^n}{n!} \nonumber
+			\end{align}
+		\end{proof}
+		
+		
+		
+		\begin{lemme3}	
+			Soit $X$ une $v.a.r.$ telle que $ \mathbb{E} [ \vert X \vert ^3 ] < +\infty $.  
+			On pose $\rho = \mathbb{E} [ \vert X \vert ^3 ] $ et $ \sigma^2 = \mathbb{E} [ X^2 ] $.
+			Alors $ \sigma^3 < \rho $.
+		\end{lemme3}
+		
+		
+		
+		\begin{proof}
+			On pose $ u(t) = \text{log} \: \mathbb{E} [ \vert X \vert ^t ] $ définie sur $ [0,3] $.  \\
+			Montrons que cette fonction est convexe.  D'après l'inégalité de Schwartz, 
+			\[
+			\mathbb{E}^2 [ \vert X \vert ^t ] \leq \mathbb{E} [ \vert X \vert ^{t+h} ] \times \mathbb{E} [ \vert X \vert ^{t-h} ] \quad \quad ,  0 \leq h \leq t
+			\]
+			donc 
+			\[
+			2 \: \underbrace{ \text{log} \: \mathbb{E} [ \vert X \vert ^t ] }_{=u(t)} \leq \underbrace{ \text{log} \: \mathbb{E} [ \vert X \vert ^{t+h} ] }_{=u(t+h)}
+			+ \underbrace{ \text{log} \: \mathbb{E} [ \vert X \vert ^{t-h} ] }_{=u(t-h)}
+			\]
+			donc 
+			\[
+			u(t) \leq \frac{u(t+h) + u(t-h)}{2}
+			\]
+			et $u$ est convexe.  \\
+			
+			\noindent De plus,  il y a égalité dans l'inégalité de Schwartz si et seulement si 
+			$ \exists \; (a,b) \in \mathbb{R}^2 $ tq $ aX^{t+h} + bX^{t-h} = 0 \; \mathbb{P}-p.s.  $,  c.à.d.  si et seulement si 
+			$ aX^{2h} + b = 0 \; \mathbb{P}-p.s.  $ c.à.d.  si et seulement si $X$ est constante $p.s.$ \\
+			
+			\noindent Comme $ u(0)=0 $,  la fonction $ t \mapsto \frac{u(t)}{t} $ est croissante sur $ ]0,3] $.  \\
+			On rappelle que si $f$ est une fonction convexe sur $ \mathbb{R}_+ $ telle que $ f(0) \leq 0 $,  alors la fonction $ t \mapsto \frac{u(t)}{t} $ est croissante. \\
+			Donc,  par croissance de la fonction exponentielle,  $ t \mapsto $exp$ \left( \frac{u(t)}{t} \right) $ est croissante sur $ ]0,3] $.  \\
+			Or,  
+			\[			
+			\text{exp} \left( \frac{u(t)}{t} \right) = \text{exp} \left( \frac{\text{log} \: \mathbb{E} [ \vert X \vert ^t ]}{t} \right) = \mathbb{E} [ \vert X \vert ^t ]^{\frac{1}{t}}.
+			\]
+			
+			\noindent En particulier,  $ \mathbb{E} [ X^2 ]^{ \frac{1}{2} } \leq \mathbb{E} [ \vert X \vert ^3 ]^{ \frac{1}{3} } $ d'où 
+			$ \underbrace{ \mathbb{E} [ X^2 ]^{ \frac{3}{2} } }_{= \sigma^3} \leq \underbrace{ \mathbb{E} [ \vert X \vert ^3 ] }_{\rho} $.
+			De plus,  si $X$ n'est pas constante $p.s.$,  alors $ \sigma^3 < \rho $.
+		\end{proof}
+		
+		
+		
+		\begin{lemme4}
+			$ \forall n \in \mathbb{N},  \forall \alpha,  \beta \in \mathbb{R},  \forall \lambda \geq \vert \alpha \vert,  \vert \beta \vert $, on a :
+			\[
+			\vert \alpha^n - \beta^n \vert \leq n \: \vert \alpha - \beta \vert \: \lambda^{n-1}.
+			\]
+		\end{lemme4}
+		
+		
+		
+		\begin{proof}
+			On a :
+			\begin{align}
+				\vert \alpha^n - \beta^n \vert 
+				& = \vert \alpha - \beta \vert \: \left\vert \sum_{k=0}^{n-1} \alpha^k \: \beta^{n-1-k} \right\vert \nonumber \\
+				& \stackrel{IT}{\leq} \vert \alpha - \beta \vert \: \sum_{k=0}^{n-1} \vert \alpha \vert ^k \: \vert \beta \vert ^{n-1-k} \nonumber \\
+				& = \vert \alpha - \beta \vert \: \sum_{k=0}^{n-1} \lambda^k \: \lambda^{n-1-k} \nonumber \\
+				& = \vert \alpha - \beta \vert \: n \: \lambda^{n-1} \nonumber
+			\end{align}
+		\end{proof}
+
+%-------------------------------------------------------------------------------------------------------------------------%
+%-------------------------------------------------------------------------------------------------------------------------%
+
+  \section{Démonstration du théorème}
+
+		\begin{proof}
+			On veut appliquer le $\hyperlink{lemme1}{\textcolor{blue}{lemme1}}$ aux fonction de répartition $F_n$ et $N$. \\
+			Soit $\phi_n$ la fonction caractéristique de $Y_n$. On a : 
+			\begin{align*}
+			  \phi_n(t)
+			  & = \mathbb{E} \left[ e^{itY_n} \right] \\
+			  & = \mathbb{E} \left[ e^{it\sum_{j=1}^n \left( \frac{X_j}{\sigma\sqrt{n}} \right) } \right] \\
+			  & = \mathbb{E} \left[ \prod_{j=1}^n \left( e^{it\frac{X_j}{\sigma\sqrt{n}}} \right) \right] \\
+			  & = \mathbb{E} \left[ e^{it\frac{X_1}{\sigma\sqrt{n}}} \right]^n \tag{car les $X_j$ sont i.i.d.} \\
+			  & = \phi \left( \frac{t}{\sigma\sqrt{n}} \right)^n
+			\end{align*}
+			avec $\phi$ la fonction caractéristique de $X_1$.\\\\
+			Par ailleurs, $N$ vérifie bien :\\
+			$N(-\infty)=0 , \: N(+\infty)=1$ et $  \lvert N^{'}(x) \rvert = \frac{1}{\sqrt {2\pi} }e^{-\frac{x^2}{2}} \leq \frac{1}{2\pi} < \frac{2}{5} < +\infty$. \\
+			
+			\noindent De plus, la transformée de Fourier de la loi $\mathcal{N}(0,1)$ est $\gamma(s)=e^-\frac{s^2}{2}$ et vérifie bien $\gamma(0)= 1$ et $\gamma^{'}(0)=0$. \\ 
+			
+			\noindent D'après le $\hyperlink{lemme1}{\textcolor{blue}{lemme 1}}$, on a donc : $ \forall n \geq 1 , \forall x \in \mathbb{R}, \forall T>0 : $
+			\[
+			\lvert F_n(x)-N(x) \rvert \leq \frac{1}{\pi} \int_{-T}^{T} \left\vert \phi^n \left( \frac{s}{\sigma\sqrt{n}} \right) - e^{-\frac{s^2}{2}} \right\vert \frac{\mathrm{d}s}{\lvert s \rvert} + \frac{9.6}{\pi T}  \hypertarget{1}{\textcolor{blue}{(1)}}
+			\]
+			Soit n$\geq$0, on choisit $T=\frac{4}{3}\frac{\sigma^3}{\rho}\sqrt{n}$. \\
+			
+			\noindent Par ailleurs, on a : 
+			\begin{align*}
+			  \left\vert  \phi(t)-1+\frac{1}{2}\sigma^2t^2  \right\vert 
+			  & = \left\vert \int_{-\infty}^{+\infty}e^{itx}F(\mathrm{d}x) - \int_{-\infty}^{+\infty}F(\mathrm{d}x) - \underbrace{it \int_{-\infty}^{+\infty} xF(\mathrm{d}x)}_{=0} + \frac{1}{2}t^2\int_{-\infty}^{+\infty}x^2F(\mathrm{d}x) \right\vert \\
+			  & = \left\vert \int_{-\infty}^{+\infty} \left( e^{itx}-1-itx+\frac{1}{2}t^2x^2 \right) F(\mathrm{d}x) \right\vert \\
+			  & = \lvert \int_{-\infty}^{+\infty} \underbrace{ \left( e^{itx} - 1 - \frac{itx}{1!}- \frac{(itx)^2}{2!} \right) }_{\leq \frac{(tx)^3}{3!} \text{ d'après le }\hyperlink{lemme2}{\textcolor{blue}{lemme 2}}  } F(\mathrm{d}x) \rvert \\
+			  & \leq \int_{-\infty}^{+\infty} \frac{\lvert tx \rvert^3}{6}F(\mathrm{d}x)\\
+			  & = \frac{\lvert t \rvert^3}{6} \underbrace{\int_{-\infty}^{+\infty} \lvert x \rvert ^3 F(\mathrm{d}x)}_{=E[\lvert X \rvert^3]=\rho}\\
+			  & = \frac{1}{6}\rho \lvert t \rvert ^3  \hypertarget{2}{\textcolor{blue}{(2)}} \\
+			\end{align*}
+			
+			\noindent On rappelle que : $(\lvert a-b\rvert \leq c \text{ et } b\geq0 ) \Rightarrow \lvert a \rvert \leq b+c $. 
+			Par conséquent, si $\frac{1}{2}\sigma^2t^2 \leq1$, alors :
+			\[
+			\lvert \phi(t) \rvert \leq 1-\frac{1}{2}\sigma^2t^2+\frac{1}{6}\rho \lvert t \rvert^3.
+			\]
+			
+			\noindent Soit $\lvert s \rvert \leq T$. On a :\\
+			\begin{align*}
+			  \frac{1}{2}\sigma^2 \left( \frac{s}{\sigma\sqrt{n}} \right) ^2 
+			  & \leq \frac{1}{2} \frac{T^2}{n}\\
+			  & = \frac{1}{2n}\frac{16}{9} \left( \frac{\sigma^3}{\rho} \right)^2n\\
+			  & = \frac{8}{9} \left( \frac{\sigma^3}{\rho} \right)^2 \\
+			  & \leq 1\\
+			\end{align*}
+			car $\sigma^3<\rho$ d'après le \hyperlink{lemme3}{\textcolor{blue}{lemme 3}}.\\
+			
+			\noindent On a montré que $ \lvert \phi(t) \rvert \leq 1-\frac{1}{2}\sigma^2t^2+\frac{1}{6}\rho \lvert t \rvert^3$~~ si ~~$\frac{1}{2}\sigma^2t^2 \leq1$ et que $\frac{1}{2}\sigma^2 \left( \frac{s}{\sigma\sqrt{n}} \right)^2 \leq 1 $ \\
+			
+			\noindent On a donc: 
+			\begin{align*}
+			  \left\vert \phi \left( \frac{s}{\sigma\sqrt{n}} \right) \right\vert  &\leq 1-\frac{1}{2}\sigma^2 \left( \frac{s}{\sigma\sqrt{n}} \right)^2 + \frac{1}{6}\rho \left\vert \frac{s}{\sigma\sqrt{n}} \right\vert^3\\
+			  &=1-\frac{1}{2n}s^2 + \frac{\rho}{6\sigma^3n^{\frac{3}{2}}} \lvert s \rvert^3\\
+			  &\leq 1-\frac{1}{2n}s^2 + \frac{\rho}{6\sigma^3n^{\frac{3}{2}}} s^2T\\
+			  &=1-\frac{1}{2n}s^2 + \frac{\rho}{6\sigma^3n^{\frac{3}{2}}} s^2 \frac{4}{3}\frac{\sigma^3}{\rho}\sqrt{n}\\
+			  &=1-\frac{1}{2n}s^2 + \frac{4}{18n}s^2\\
+			  &=1-\frac{5}{18n}s^2\\
+			  & \leq e^{-\frac{5}{18n}s^2} \tag{car $1-x\leq e^{-x} ~~ \forall x \in \mathbb{R}$.}
+			\end{align*}
+			
+			\noindent Comme $\sigma^3 < \rho$, la preuve du théorème est triviale pour $\sqrt{n} \leq 3$. \\
+			En effet, pour $\sqrt{n}\leq3$, $\forall x \in \mathbb{R}$, $\lvert F_n(x)-N(x) \rvert \leq 1 \leq \frac{3\rho}{\sigma^3\sqrt{n}}$.\\
+			On peut donc supposer à partir de maintenant que $\sqrt{n}>3 \Leftrightarrow n \geq 10$.\\
+			
+			\noindent On a alors : 
+			\begin{align*}
+			  \left\vert \phi \left( \frac{s}{\sigma\sqrt{n}} \right) \right\vert^{n-1} 
+			  & \leq \left( e^{-\frac{5}{18n}s^2} \right)^{n-1} \\
+			  & = e^{-\frac{5}{18}\frac{n-1}{n} s^2}\\
+			  & \leq e^{-\frac{1}{4}s^2} \tag{car $\frac{5}{18}\frac{n-1}{n} \geq \frac{5}{18}\frac{9}{10} = \frac{1}{4}$.}
+			\end{align*}
+			
+			\noindent En outre, on a : 
+			\[
+			n\left\vert \phi \left( \frac{s}{\sigma\sqrt{n}} \right) - e^{-\frac{s^2}{2n}} \right\vert  
+			\stackrel{IT}{\leq}  n\left\vert \phi \left( \frac{s}{\sigma\sqrt{n}} \right) - 1 + \frac{s^2}{2n} \right\vert 
+			+ n \left\vert 1- \frac{s^2}{2n} - e^{\frac{s^2}{2n}} \right\vert
+			\] \\
+			
+			\noindent et on rappelle que : 
+			\begin{itemize}
+			  \item $  \left\vert \phi \left( \frac{s}{\sigma\sqrt{n}} - 1 + \frac{s^2}{2n} \right) \right\vert 
+			  = \left\vert \phi \left( \frac{s}{\sigma\sqrt{n}} - 1 + \frac{1}{2}\sigma^2 \left( \frac{s}{\sigma\sqrt{n}} \right)^2 \right) \right\vert 
+			  \leq \frac{1}{6}\rho \left\vert \frac{s}{\sigma\sqrt{n}}\right\vert ^3 \quad$ d'après $\hyperlink{2}{\textcolor{blue}{(2)}}$ \\
+			  \item $ \left\vert 1- \frac{s^2}{2n} - e^{\frac{s^2}{2n}} \right\vert 
+			  \leq \frac{1}{2} \left( \frac{s^2}{2n} \right)^2 
+			  = \frac{s^4}{8n^2} \quad \quad$ car $0 \leq e^{-x}-1+x \leq \frac{1}{2}x^2$ pour $x>0$\\
+			\end{itemize}
+			donc
+			\begin{align*}
+			  n \left\vert \phi \left( \frac{s}{\sigma\sqrt{n}} \right) - e^{- \frac{s^2}{2n}} \right\vert 
+			  & \leq n \frac{1}{6}\rho \left\vert \frac{s}{\sigma n^{\frac{3}{2}}} \right\vert ^3 +n \frac{s^4}{8n^2} \\
+			  & = \frac{\rho}{6\sigma^3\sqrt{n}} \lvert s \rvert^3 + \frac{1}{8n}s^4  \hypertarget{3}{\textcolor{blue}{(3)}}.
+			\end{align*}
+			 
+			\noindent On utilise maintenant le \hyperlink{lemme4}{\textcolor{blue}{lemme 4}}, d'où : 
+			\[
+			\frac{\left\vert \phi^n \left( \frac{s}{\sigma\sqrt{n}} \right) -e^{-\frac{s^2}{2}} \right\vert }{\lvert s \rvert} 
+			\leq n\frac{\left\vert \phi \left( \frac{s}{\sigma\sqrt{n}} \right) -e^{-\frac{s^2}{2n}} \right\vert }{\lvert s \rvert}\lambda^{n-1} 
+			\tag{pour tout $\lambda \geq \left\vert \phi \left( \frac{s}{\sigma\sqrt{n}} \right) \right\vert$, $\lvert e^{\frac{-s^2}{2n}} \rvert$}
+			\]
+			
+			\noindent On peut prendre $\lambda = e^{-\frac{s^2}{4(n-1)}}$. En effet: 
+			\begin{itemize}
+			  \item $\lambda^{n-1} = e^{-\frac{s^2}{4}} 
+			  \geq \left\vert  \phi^n \left( \frac{s}{\sigma\sqrt{n}} \right) \right\vert^{n-1} $ (car n$\geq 10$)\quad donc 
+			  $\lambda \geq \left\vert \phi^n \left( \frac{s}{\sigma\sqrt{n}} \right) \right\vert$\\
+			  \item $n\geq10 \Rightarrow 4(n-1) \geq 2n \Rightarrow \frac{1}{4(n-1)}\leq \frac{1}{2n} \Rightarrow \frac{s^2}{4(n-1)}\leq \frac{s^2}{2n}$\quad et donc on a : \\
+			  $\lambda = e^{-\frac{s^2}{4(n-1)}} \geq e^{-\frac{s^2}{2n}}. \\$
+			\end{itemize} 
+			
+			
+			\noindent Pour ce choix de $\lambda$, on a donc :
+			\begin{align*}
+			  \frac{\left\vert \phi^n \left( \frac{s}{\sigma\sqrt{n}} \right) -e^{-\frac{s^2}{2}} \right\vert }{\lvert s \rvert}
+			  & \leq n\frac{\left\vert \phi \left( \frac{s}{\sigma\sqrt{n}} \right) -e^{-\frac{s^2}{2n}} \right\vert }
+			  {\lvert s \rvert}e^{-\frac{s^2}{4}}\\
+			  & \leq  \frac{e^{-\frac{s^2}{4}}}{\lvert s \rvert} \left( \frac{\rho}{6\sigma^3\sqrt{n}} \lvert s \rvert^3 +
+			  \frac{1}{8n}s^4 \right) \tag{d'après $\hyperlink{3}{\textcolor{blue}{(3)}}$} \\
+			  & = \frac{1}{T}T \left( \frac{\rho}{6\sigma^3\sqrt{n}} s^2 + \frac{1}{8n}\lvert s \rvert^3 \right) 
+			  e^{-\frac{s^2}{4}}\\
+			  & = \frac{1}{T} \left( \frac{2}{9}s^2 + \frac{\sigma^3}{\rho} \frac{1}{6\sqrt{n}}\lvert s \rvert^3 \right) 
+			  e^{-\frac{s^2}{4}}\\
+			  & \leq \frac{1}{T} \left( \frac{2}{9}s^2 + \frac{1}{18} \lvert s\rvert^3 \right) e^{-\frac{s^2}{4}} \hypertarget{4}{\textcolor{blue}{(4)}}.
+			\end{align*}
+			
+			\noindent Cette fonction est intégrable sur [-T,T] et on a $\forall n \geq 1 , \: \forall x \in \mathbb{R} $:
+			\begin{align*}
+			  \pi \lvert F_n(x)-N(x) \rvert 
+			  & \leq \int_{-T}^T \left\vert \phi^n \left( \frac{s}{\sigma\sqrt{n}} \right) - e^{-\frac{s^2}{2}} \right\vert
+			  \frac{\mathrm{d}s}{\lvert s \rvert} + \frac{9.6}{T} \tag{d'après $\hyperlink{1}{\textcolor{blue}{(1)}}$} \\
+			  & \leq \int_{-T}^T \left( \frac{1}{T} \left( \frac{2}{9}s^2 + \frac{1}{18} \lvert s \rvert^3 \right) 
+			  e^{-\frac{s^2}{4}} \right) \mathrm{d}s + \frac{9.6}{T} \tag{d'après $\hyperlink{4}{\textcolor{blue}{(4)}}$}
+			\end{align*}
+			
+			\noindent Par intégration par parties, on obtient :
+			\[
+			\pi T \lvert F_n(x) - N(x) \rvert \leq \frac{8}{9} \sqrt{\pi} +\frac{8}{9}+10 < \frac{8}{5} + \frac{8}{9} + 10 < \frac{113}{9} < 4\pi.
+			\]
+			
+			\noindent Donc $\lvert F_n(x) - N(x) \rvert \leq  \frac{4}{T} = \frac{4}{\frac{4}{3}\frac{\sigma^3}{\rho}\sqrt{n}} = \frac{3\rho}{\sigma^3\sqrt{n}}$.\\
+		\end{proof}
+	
+	
+%-------------------------------------------------------------------------------------------------------------------------%
+%-------------------------------------------------------------------------------------------------------------------------%
+%-------------------------------------------------------------------------------------------------------------------------%
+	
+		
+\chapter{Approximation du mouvement brownien}
+
+Dans cette partie centrale de notre mémoire, nous construisons dans un premier temps un processus constitué d’une série de variables iid bien choisies. La loi de ce processus, par ailleurs continu par morceaux uniquement, est destinée à converger vers la loi du mouvement brownien pour n’importe quel instant t donné.	Dans un second temps, et de façon moins complète, un second processus, cette fois continu partout presque surement et affine par morceaux, est étudié pour établir une convergence vers le mouvement brownien sur un intervalle prédéfini.  
+
+  \section{Approximation continue par morceaux}
+    
+    \subsection{Construction du processus $t \mapsto A_{t,n}$}
+    
+      \paragraph{Définition 3.1.1}
+        Soit $ (U_k)_{k \geq 1} $ des variables aléatoires réelles i.i.d.  tq : $\mathbb{E}[U_1]=0$ et 
+        $\mathbb{E}[U_1^2]=\sigma^2>0 $.
+        Soit $ n \in \mathbb{N}^* $ et $t>0$. \\
+        On pose 
+        \[
+		    A_{t,n} = \frac{1}{\sigma \sqrt{n}} \sum_{k=1}^{ \lfloor nt \rfloor } U_k 
+		    = \frac{ \sqrt{\lfloor nt \rfloor} }{\sqrt{n}} \times \frac{U_1 + \dots + U_{ \lfloor nt \rfloor }}
+		    { \sigma  \sqrt{\lfloor nt \rfloor}}.
+		    \] \\
+        
+      
+      \paragraph{Remarque 3.1.2}
+        On observe que $A_{0,n} = 0 \quad \forall n \in \mathbb{N}^*$. \\
+      De plus, si $0 \leq t_1 < t_2$ et $n \in \mathbb{N}^*$ vérifient 
+      $\lfloor nt_1 \rfloor = \lfloor nt_2 \rfloor$, alors $A_{t_2,n} - A_{t_1,n} = 0 \quad ps$.
+       
+        
+      \paragraph{Proposition 3.1.3}
+        Soit $ m \in \mathbb{N}^* $ et $ 0 = t_0 < t_1 < t_2 < \dots < t_m < +\infty$. 
+        Les incréments $(A_{t_i,n} - A_{t_{i-1},n})_{1 \leq i \leq m}$ sont indépendants.
+      
+      
+      \begin{proof}
+      
+        \noindent On a : $\forall i \in \{1, \dots, m\}$,
+			    \[
+			    A_{t_i,n} - A_{t_{i-1},n} = \frac{1}{\sigma \sqrt{n}} \sum_{k = \lfloor nt_{i-1} \rfloor +1 }^{ \lfloor nt_i \rfloor } U_k
+			    \]
+			    dépend des $(U_k)_{ \lfloor nt_{i-1} \rfloor +1 \: \leq \: k \: \leq \: \lfloor nt_i \rfloor }$. \\
+			    
+			    \noindent Comme les $(U_k)_{k \geq 1}$ sont $i.i.d.$, les incréments 
+			    $(A_{t_i,n} - A_{t_{i-1},n})_{1 \leq i \leq m}$ sont mutuellement indépendants. 
+      
+      \end{proof}
+      
+      \paragraph{Proposition 3.1.4}
+        Les incréments du processus $(A_{t,n})_{t \geq 0}$ sont asymptotiquement stationnaires et pour tout $t \geq 0, \: A_{t,n} \overset{\mathcal{L}}{\underset{n \rightarrow +\infty}{\longrightarrow}} \mathcal{N} (0,t)$.
+      
+      
+      \begin{proof}
+        Soit $0 \leq t_1 \leq t_2 < +\infty$. On a :
+		    \[
+		    A_{t_2,n} - A_{t_1,n} 
+		    = \underbrace{\frac{ \sqrt{ \lfloor nt_2 \rfloor - \lfloor nt_1 \rfloor } }{\sqrt{n}}}_{ \longrightarrow \sqrt{t_2 - t_1} }
+		    \times \underbrace{ \frac{U_{ \lfloor nt_1 \rfloor +1} + \dots + U_{ \lfloor nt_2 \rfloor }}{ \sigma  \sqrt{ \lfloor nt_2 \rfloor - \lfloor nt_1 \rfloor }} }_{\longrightarrow \mathcal{N} (0,1)}
+		    \overset{\mathcal{L}}{\underset{n \rightarrow +\infty}{\longrightarrow}} \mathcal{N} (0,  t_2 - t_1)
+		    \]
+		    et
+		    \[
+		    A_{t_2 - t_1,n} 
+		    = \underbrace{\frac{ \sqrt{ \lfloor n(t_2 - t_1) \rfloor } }{\sqrt{n}}}_{ \longrightarrow \sqrt{t_2 - t_1} }
+		    \times \underbrace{ \frac{U_1 + \dots + U_{ \lfloor n(t_2 - t_1) \rfloor }}{ \sigma  \sqrt{ \lfloor n(t_2 - t_1) \rfloor }} }_{\longrightarrow \mathcal{N} (0,1)}
+		    \overset{\mathcal{L}}{\underset{n \rightarrow +\infty}{\longrightarrow}} \mathcal{N} (0,  t_2 - t_1)
+		    \]
+		    par le théorème de Slutsky. Donc les incréments sont asymptotiquement stationnaires. 
+		    De plus, on a bien que pour tout $t \geq 0, \: A_{t,n} \overset{\mathcal{L}}{\underset{n \rightarrow +\infty}{\longrightarrow}} \mathcal{N} (0,t)$.
+      
+      \end{proof}
+      
+      \paragraph{Remarque 3.1.5}
+        Si $\lfloor nt_2 \rfloor - \lfloor nt_1 \rfloor = \lfloor n(t_2 - t_1) \rfloor$, on a même 
+        $A_{t_2,n} - A_{t_1,n} \overset{loi}{=} A_{t_2 - t_1,n}$.
+      
+      
+      \paragraph{Corollaire 3.1.6}
+        Pour tout $m \in \mathbb{N}^*$ et tout $0 \leq t_1 \leq \dots \leq t_m < +\infty$, la loi de $(A_{t_1,n}, \dots, A_{t_m,n})$ est gaussienne et converge vers la loi fini-dimensionnelle $(B_{t_1}, \dots, B_{t_m})$ du mouvement brownien standard. 
+      
+      
+      \paragraph{Remarque 3.1.7}
+        On observe que pour tout $n \in \mathbb{N}^*$ et $\omega \in \Omega$, la fonction $t \mapsto A_{t,n}(\omega)$ est constante sur tous les segments de la forme $\left[ \frac{k-1}{n}, \frac{k}{n} \right[$, avec $k \geq 1$.
+        
+%-------------------------------------------------------------------------------------------------------------------------%
+
+    \subsection{Vitesse de convergence}
+      
+      Dans cette section, on s'intéresse à la vitesse de convergence de la suite de $v.a.$ $(A_{t,n})_{n \geq 1}$ 
+      vers la loi $\mathcal{N}(0,t)$. Pour cela, on compare la $f.d.r.$ de $A_{t,n}$ (notée $F_{t,n}$) et celle de la loi 
+      $\mathcal{N}(0,t)$ (notée $N_t$).
+      
+      
+      \paragraph{Proposition 3.1.7}
+        Soit $t>0$ et $n \in \mathbb{N}^*$ tel que $nt \geq 1$. \\
+        Si $\mathbb{E} [\lvert U_1^3 \rvert]=\rho<+\infty$, on a : $\forall x \in \mathbb{R}$, 
+        \[
+        \left\vert F_{t,n}(x) - N_t(x) \right\vert \leq \frac{3\rho}{\sigma^3\sqrt{ \lfloor nt \rfloor }} + \epsilon_{t,n,x}
+        \]
+        où
+        \[
+        \epsilon_{t,n,x} = \mathbb{P} \left( \frac{x}{\sqrt{t}} < X 
+        \leq \frac{\sqrt{n}x}{\sqrt{\lfloor nt \rfloor}} \right)
+        \]
+        avec $X$ de loi $\mathcal{N}(0,1)$.
+      
+      
+      \paragraph{Remarque 3.1.8}
+        Le terme $\epsilon_{t,n,x}$ est dû à la partie entière. On observe que si $\lfloor nt \rfloor = nt$, alors 
+        $\epsilon_{t,n,x} = 0$. De plus, quand $n$ est grand, ce terme est négligeable. 
+      
+      
+      \begin{proof}
+        On a
+        \[
+        A_{t,n} = \frac{ \sqrt{\lfloor nt \rfloor} }{\sqrt{n}} \times \underbrace{ \frac{U_1 + \dots + U_{ \lfloor nt \rfloor }}
+		    { \sigma  \sqrt{\lfloor nt \rfloor}}}_{=:Y_{\lfloor nt \rfloor}}.
+        \]
+        D'après le théorème de Berry-Esseen : $\forall y \in \mathbb{R}$,
+        \[
+        \left\vert \mathbb{P} \left( Y_{\lfloor nt \rfloor} \leq y \right) - N(y) \right\vert \leq \frac{3\rho}{\sigma^3\sqrt{ \lfloor nt \rfloor }}
+        \]
+        donc, en prenant $x = \frac{\sqrt{\lfloor nt \rfloor}}{\sqrt{n}} y$,
+        \[
+        \left\vert \mathbb{P} \left( \frac{\sqrt{\lfloor nt \rfloor}}{\sqrt{n}} Y_{\lfloor nt \rfloor} \leq x \right) - N_{\frac{\lfloor nt \rfloor}{n}}(x) \right\vert \leq 
+        \frac{3\rho}{\sigma^3\sqrt{ \lfloor nt \rfloor }}.
+        \]
+        
+        \noindent Donc $\forall x \in \mathbb{R}$, 
+        \begin{align*}
+          \left\vert \mathbb{P} \left( A_{t,n} \leq x \right) - N_t(x) \right\vert 
+          & \overset{IT}{\leq} 
+          \left\vert \mathbb{P} \left( A_{t,n} \leq x \right) - N_{\frac{\lfloor nt \rfloor}{n}}(x) \right\vert +
+          \left\vert N_{\frac{\lfloor nt \rfloor}{n}}(x) - N_t(x) \right\vert \\
+          & \leq \frac{3\rho}{\sigma^3\sqrt{ \lfloor nt \rfloor }}
+          + \left\vert N_{\frac{\lfloor nt \rfloor}{n}}(x) - N_t(x) \right\vert.
+        \end{align*}
+        
+        \noindent Or, 
+        \begin{align*}
+          \left\vert N_{\frac{\lfloor nt \rfloor}{n}}(x) - N_t(x) \right\vert
+          & = \left\vert \mathbb{P} \left( \frac{ \sqrt{\lfloor nt \rfloor} }{\sqrt{n}} X \leq x \right) - \mathbb{P} \left( \sqrt{t} X \leq x \right) \right\vert \\
+          & = \left\vert \mathbb{P} \left(X \leq \frac{\sqrt{n} x}{ \sqrt{\lfloor nt \rfloor} } \right) - 
+          \mathbb{P} \left( X \leq \frac{x}{\sqrt{t}} \right) \right\vert \\
+          & = \mathbb{P} \left( \frac{x}{\sqrt{t}} < X
+          \leq \frac{\sqrt{n} x}{ \sqrt{\lfloor nt \rfloor} } \right) \\
+          & =: \epsilon_{t,n,x}.
+        \end{align*}
+      
+        \noindent Ainsi, $\forall x \in \mathbb{R}$,
+        \[
+        \left\vert \mathbb{P}(A_{t,n} \leq x) - N_t(x) \right\vert \leq \frac{3\rho}{\sigma^3\sqrt{ \lfloor nt \rfloor }} + \epsilon_{t,n,x}.
+        \]
+        
+      \end{proof}
+    
+    
+      \paragraph{Remarque 3.1.9}
+        Dans le chapitre $4$, nous utiliserons la $f.d.r.$ empirique de $A_{t,n}$ et non pas sa $f.d.r.$ théorique. On rappelle que, d'après le théorème de Glivenko-Cantelli, la $f.d.r.$ empirique de $A_{t,n}$, calculée à partir de $(A_{t,n}^{(1)}, \dots, A_{t,n}^{(m)})$, converge uniformément vers la $f.d.r.$ (théorique) de $A_{t,n}$. \\
+        \noindent Ainsi, quand on augmente le paramètre $n$, la $f.d.r.$ de $A_{t,n}$ se rapproche de celle d'une $\mathcal{N}(0,t)$ et quand on augmente $m$, la $f.d.r.$ empirique de $A_{t,n}$ se rapproche de sa $f.d.r.$ théorique.
+        
+%-------------------------------------------------------------------------------------------------------------------------%
+%-------------------------------------------------------------------------------------------------------------------------%
+
+  \section{Approximation affine par morceaux}
+    
+    Dans la partie précédente, nous avons vu que la loi fini-dimensionnelle du processus $A_{t,n}$ converge vers celle du mouvement brownien standard. Pour obtenir que $(A_{t,n})_{t \geq 0}$ converge vers B, il nous faut un argument supplémentaire : celui de la continuité des trajectoires. \\
+    Pour cela, nous définissons un nouveau processus. 
+    
+    \subsection{Construction du processus $t \mapsto \tilde{A}_{t,n}$}
+      
+      \paragraph{Définition 3.2.1}
+        Soit $ (U_k)_{k \geq 1} $ des variables aléatoires réelles i.i.d.  tq : $\mathbb{E}[U_1]=0$ et 
+        $\mathbb{E}[U_1^2]=\sigma^2>0 $.
+        Soit $ n \in \mathbb{N}^* $ et $t \geq 0$. \\
+        On pose 
+        \begin{align*}
+          A_{t,n}'
+           & = \frac{1}{\sigma \sqrt{n}} \left( \sum_{k=1}^{ \lfloor nt \rfloor } U_k + 
+           (nt - \lfloor nt \rfloor) U_{\lfloor nt \rfloor + 1} \right) \\
+           & = \frac{ \sqrt{\lfloor nt \rfloor} }{\sqrt{n}} \times \frac{U_1 + \dots + U_{ \lfloor nt \rfloor }}
+           { \sigma  \sqrt{\lfloor nt \rfloor}} + \frac{(nt - \lfloor nt \rfloor) U_{\lfloor nt \rfloor + 1}}
+           {\sigma \sqrt{n}}.
+        \end{align*}
+      
+      
+      \paragraph{Proposition 3.2.2}
+        Les incréments du processus $(\tilde{A}_{t,n})_{t \geq 0}$ sont asymptotiquement stationnaires et pour tout $t \geq 0, \: \tilde{A}_{t,n} \overset{\mathcal{L}}{\underset{n \rightarrow +\infty}{\longrightarrow}} \mathcal{N} (0,t)$. 
+      
+      
+      \begin{proof}
+        Soit $0 \leq t_1 < t_2$. On a :
+        \[
+        \tilde{A}_{t_2,n} - \tilde{A}_{t_1,n}
+        = \underbrace{\frac{1}{\sigma \sqrt{n}} \sum_{k = \lfloor nt_1 \rfloor + 1}^{ \lfloor nt_2 \rfloor } U_k}_{A_{t_2,n} - A_{t_1,n}}
+        + \frac{(nt_2 - \lfloor nt_2 \rfloor) U_{\lfloor nt_2 \rfloor + 1}}{\sigma \sqrt{n}} 
+        - \frac{(nt_1 - \lfloor nt_1 \rfloor) U_{\lfloor nt_1 \rfloor + 1}}{\sigma \sqrt{n}}.
+        \]
+        D'après la section précédente, 
+        \[
+        A_{t_2,n} - A_{t_1,n}
+        \overset{\mathcal{L}}{\underset{n \rightarrow +\infty}{\longrightarrow}} \mathcal{N} (0,t_2 - t_1).
+        \]
+        Soit $\epsilon > 0$. On a :
+        \begin{align*}
+          \mathbb{P} \left( \left\vert \frac{(nt_1 - \lfloor nt_1 \rfloor) U_{\lfloor nt_1 \rfloor + 1}}{\sigma \sqrt{n}} \right\vert > \epsilon \right)
+          & \leq \frac{\mathbb{E} \left[ \left\vert \frac{(nt_1 - \lfloor nt_1 \rfloor) U_{\lfloor nt_1 \rfloor + 1}}{\sigma \sqrt{n}} \right\vert \right]}{\epsilon} \tag{par l'inégalité de Markov} \\
+          & = \frac{nt_1 - \lfloor nt_1 \rfloor}{\epsilon \sigma \sqrt{n}} \mathbb{E} [\vert U_1 \vert] \underset{n \rightarrow +\infty}{\longrightarrow} 0
+        \end{align*}
+        car $\mathbb{E} [\vert U_1 \vert] < +\infty$. \\
+        
+        \noindent Donc $\frac{(nt_1 - \lfloor nt_1 \rfloor) U_{\lfloor nt_1 \rfloor + 1}}{\sigma \sqrt{n}} \overset{\mathcal{\mathbb{P}}}{\underset{n \rightarrow +\infty}{\longrightarrow}} 0$ et il en va de même pour $ \frac{(nt_2 - \lfloor nt_2 \rfloor) U_{\lfloor nt_2 \rfloor + 1}}{\sigma \sqrt{n}}$. \\
+        
+        \noindent Ainsi, par le théorème de Slutsky, on obtient que :
+        \[
+        \tilde{A}_{t_2,n} - \tilde{A}_{t_1,n}
+        \overset{\mathcal{L}}{\underset{n \rightarrow +\infty}{\longrightarrow}} \mathcal{N} (0,t_2 - t_1).
+        \]
+        Donc 
+        \[
+        \tilde{A}_{t_2 - t_1,n} - \tilde{A}_{0,n}
+        \overset{\mathcal{L}}{\underset{n \rightarrow +\infty}{\longrightarrow}} \mathcal{N} (0,t_2 - t_1)
+        \]
+        et $\tilde{A}_{t_2,n} - \tilde{A}_{t_1,n}$ et $\tilde{A}_{t_2 - t_1,n}$ suivent asymptotiquement la même loi. 
+        De plus, on a bien que pour tout $t \geq 0, \: \tilde{A}_{t,n} \overset{\mathcal{L}}{\underset{n \rightarrow +\infty}{\longrightarrow}} \mathcal{N} (0,t)$.
+        
+      \end{proof}
+      
+      \paragraph{Proposition 3.2.3}
+        Soit $ m \in \mathbb{N}^* $ et $ 0 = t_0 < t_1 < t_2 < \dots < t_m $. 
+        Les incréments $(\tilde{A}_{t_i,n} - \tilde{A}_{t_{i-1},n})_{1 \leq i \leq m}$ sont asymptotiquement indépendants.
+        
+        
+      \begin{proof} 
+        Comme les incréments $(\tilde{A}_{t_i,n} - \tilde{A}_{t_{i-1},n})_{1 \leq i \leq m}$ sont asymptotiquement gaussiens, il suffit de montrer que leur covariance est nulle pour obtenir l'indépendance. \\
+        Soit $1 \leq i < j \leq n$. Si $j-i > 1$, alors les incréments $\tilde{A}_{t_i,n} - \tilde{A}_{t_{i-1},n}$ et $\tilde{A}_{t_j,n} - \tilde{A}_{t_{j-1},n}$ ne dépendent pas des mêmes $(U_k)_{k \geq 1}$. Comme les $(U_k)_{k \geq 1}$ sont $i.i.d.$, on a donc que $\tilde{A}_{t_i,n} - \tilde{A}_{t_{i-1},n}$ et $\tilde{A}_{t_j,n} - \tilde{A}_{t_{j-1},n}$ sont indépendants. \\
+        
+        \noindent En revanche, si $j-i = 1$, on a :
+        \begin{align*}
+          \text{Cov} \left( \tilde{A}_{t_i,n} - \tilde{A}_{t_{i-1},n}, \tilde{A}_{t_{i+1},n} - \tilde{A}_{t_i,n} \right)
+          & = \frac{(nt_i - \lfloor nt_i \rfloor)(\lfloor nt_i \rfloor + 1 - nt_i)}{\sigma^2 n} \mathbb{V} \text{ar} \left( U_{\lfloor nt_i \rfloor + 1} \right) \\
+          & = \frac{(nt_i - \lfloor nt_i \rfloor)(\lfloor nt_i \rfloor + 1 - nt_i)}{\sigma^2 n} \sigma^2 \\
+          & \leq \frac{1}{4n} \underset{n \rightarrow +\infty}{\longrightarrow} 0
+        \end{align*}
+        où l'inégalité vient du fait que $\forall n \geq 1, \forall t \geq 0, \: (nt - \lfloor nt \rfloor)(\lfloor nt \rfloor + 1 - nt) \leq \frac{1}{4}$. \\
+        Donc $\tilde{A}_{t_i,n} - \tilde{A}_{t_{i-1},n}$ et $\tilde{A}_{t_{i+1},n} - \tilde{A}_{t_i,n}$ sont asymptotiquement indépendants. \\
+        On en déduit que les incréments $(\tilde{A}_{t_i,n} - \tilde{A}_{t_{i-1},n})_{1 \leq i \leq m}$ sont asymptotiquement indépendants.
+      \end{proof}
+      
+      \paragraph{Corollaire 3.2.4}
+        Pour tout $m \in \mathbb{N}^*$ et tout $0 \leq t_1 \leq \dots \leq t_m$, la loi de $(\tilde{A}_{t_1,n}, \dots, \tilde{A}_{t_m,n})$ est gaussienne et converge vers la loi fini-dimensionnelle $(B_{t_1}, \dots, B_{t_m})$ du mouvement brownien standard.
+      
+      
+      \paragraph{Remarque 3.2.5}
+        On observe que pour tout $n \in \mathbb{N}^*$ et $\omega \in \Omega$, la fonction $t \mapsto \tilde{A}_{t,n}(\omega)$ est continue sur $\mathbb{R}_+$. De plus, à $n$ fixé, cette fonction est affine sur tous les segments de la forme $\left[ \frac{k-1}{n}, \frac{k}{n} \right]$, avec $k \geq 1$.
+      
+
+%-------------------------------------------------------------------------------------------------------------------------%
+
+
+    \subsection{Convergence vers le mouvement brownien sur l'intervalle $[0,1]$}
+      
+      Dans cette section, nous discutons de la convergence de $(\tilde{A}_{t,n})_{0 \leq t \leq 1}$ vers $(B_t)_{0 \leq t \leq 1}$ quand $n \rightarrow \infty$. Cependant, il convient de noter que les résultats que nous allons énoncer reposent sur des preuves compliquées, que nous ne maîtrisons pas parfaitement. \\
+      
+      \noindent Soit $C = \mathcal{C}([0,1])$ l'espace des fonctions continues sur $[0,1]$ et $\mathcal{C} = \sigma (C)$. \\
+      On pose $P_n, n \geq 1$ et $P$ des mesures de probabilité sur $(C, \mathcal{C})$ telles que $P_n$ est la mesure image de
+      \begin{align*}
+        \tilde{A}_n \: : \: (\Omega, \mathcal{F}) & \rightarrow (C, \mathcal{C}) \\
+        \omega \quad & \mapsto \tilde{A}_n(\omega) = (t \mapsto \tilde{A}_{t,n}(\omega))
+      \end{align*}
+      et $P$ est la mesure image du mouvement brownien 
+      \begin{align*}
+        B \: : \: (\Omega, \mathcal{F}) & \rightarrow (C, \mathcal{C}) \\
+        \omega \quad & \mapsto (t \mapsto B_t(\omega)).
+      \end{align*}
+      
+      Dans la section précédente, nous avons montré la convergence des lois fini-dimensionnelles de $P_n$ vers celles de $P$. Pour montrer que $P_n$ converge vers $P$, nous avons besoin d'introduire la notion de tension d'une mesure. Intuitivement, une famille de mesures est tendue si elle ne « s'échappe pas vers l'infini ».
+      
+      
+      \paragraph{Définition 3.2.6} Soit $(X,\mathcal{B}(X))$ un espace métrique. Soit $M = (\mu_n, n \geq 1)$ une famille de mesures de probabilité définies sur $\mathcal{B}(X)$. \\
+      La famille $M$ est tendue si, pour tout $\epsilon > 0$, il existe un ensemble compact $K_{\epsilon} \subset X$ tel que, pour tout $n \geq 1$ :
+      \[
+      \mu_n (K_{\epsilon}) > 1-\epsilon.
+      \] \\
+      
+      
+      Nous allons donner une caractérisation de la tension dans le cas où $X$ est l'espace $\mathcal{C}([0,1])$ des fonctions continues sur $[0,1]$. Pour cela, rappelons que le module de continuité d'une fonction quelconque $x(\cdot)$ définie sur $[0,1]$ est donné par :
+      \[
+      \omega_x(\delta) = \underset{\vert s-t \vert \leq \delta}{\text{sup}} \vert x(s) - x(t) \vert, \quad 0 < \delta \leq 1.
+      \]
+      
+      
+      \paragraph{Proposition 3.2.7} Soit $M = (\mu_n, n \geq 1)$ une famille de mesures de probabilité telle que, pour tout $n \geq 1, \; \mu_n$ est la mesure image de l'application $\omega \in \Omega \mapsto x \in \mathcal{C}([0,1])$. \\
+      La famille $M$ est tendue si, et seulement si, elle vérifie les $2$ conditions suivantes : 
+      \begin{enumerate}
+        \item $\forall \eta > 0, \exists a \geq 0, \exists n_0 \in \mathbb{N}^*, \forall n \geq n_0,$ on a : 
+        \[
+        \mu_n (x : \vert x(0) \vert \geq a) \leq \eta. \label{condition1}
+        \]
+        
+        \item $\forall \epsilon > 0, \forall \eta > 0, \exists \delta \in ]0,1], \exists n_0 \in \mathbb{N}^*, \forall n \geq n_0,$ on a : 
+        \[
+        \mu_n (x : \omega_x(\delta) \geq \epsilon) \leq \eta. \label{condition2}
+        \]
+      \end{enumerate}
+      
+      
+      \begin{proof} Admise. Voir théorème 7.3 \cite{pa}   \end{proof}
+      
+      \paragraph{Théorème 3.2.8} Soient $\mu$ et $\mu_n, n \geq 1$ des mesures de probabilité sur $(C, \mathcal{C})$. Si les lois fini-dimensionnelles de $\mu_n$ convergent vers celles de $\mu$, et si $(\mu_n, n \geq 1)$ est tendue, alors $\mu_n$ converge vers $\mu$. 
+      
+      
+      \begin{proof} Admise. La preuve utilise le théorème de Prokhorov. \cite{pa} \end{proof}
+      
+      
+      Dans notre cas, les lois fini-dimensionnelles de $P_n$ convergent vers celles de $P$. Pour obtenir la convergence de $\tilde{A}_n$ vers $B$ sur l'intervalle $[0,1]$, il suffit donc de vérifier que la famille de mesures de probabilité $(P_n, n \geq 1)$ est tendue. D'où la remarque suivante. 
+      
+      
+      \paragraph{Remarque 3.2.9} On rappelle que $P_n$ est la mesure image de $\tilde{A}_n \: : \: \omega \in \Omega \mapsto \tilde{A}_n(\omega) = (t \mapsto \tilde{A}_{t,n}(\omega))$. Pour cette famille de mesures de probabilité, le premier point (\ref{condition1}) de la proposition précédente est toujours vérifié. En effet, soit $\eta > 0$, par construction du processus $\tilde{A}_n$, on a : $\tilde{A}_{0,n} = 0$.
+      On choisit donc $n_0 = 1$ et un $a>0$ quelconque et on a :
+      \[
+      \forall n \geq 1, \quad P_n (\tilde{A}_n : 0 \geq a) = 0 \leq \eta.
+      \]
+      
+      \noindent Ainsi, il suffit de vérifier le deuxième point (\ref{condition2}) de la proposition précédente pour avoir la convergence de $(\tilde{A}_n)_{n \geq 1}$ vers $B$ sur l'intervalle $[0,1]$.
+      
+      
+%-------------------------------------------------------------------------------------------------------------------------%
+
+
+    \subsection{Exemple en utilisant des lois $\mathcal{U}([-1,1])$}
+    
+      Nous traitons maintenant l'exemple du processus $\tilde{A}_n$ construit à partir de lois $\mathcal{U}([-1,1])$. Nous allons montrer que ce processus converge vers le mouvement brownien sur $[0,1]$. D'après la partie précédente, il suffit de vérifier une unique condition (\ref{condition2}).
+      
+      
+      \paragraph{Proposition 3.2.10} Le processus $\tilde{A}_n$ construit à partir de lois $\mathcal{U}([-1,1])$ converge vers le mouvement brownien sur $[0,1]$.
+      
+      
+      \begin{proof} 
+        Soit $(U_k)_{k \geq 1}$ des v.a. $i.i.d.$ de loi $\mathcal{U}([-1,1])$. On a : $\mathbb{E}[U_1^2] = \frac{1}{3}$. \\
+        Pour tout $n \in \mathbb{N}^*$ et tout $t>0$, on pose : 
+        \[
+        A'_{t,n} = \sqrt{\frac{3}{n}} \left( \sum_{k=1}^{ \lfloor nt \rfloor } U_k + (nt - \lfloor nt \rfloor) U_{\lfloor nt \rfloor + 1} \right).
+        \]
+        Vérifions que :
+        \[
+        \forall \epsilon > 0, \forall \eta > 0, \exists \delta \in ]0,1], \exists n_0 \in \mathbb{N}^*, \forall n \geq n_0, \text{ on a :} 
+        \quad P_n (A'_n : \omega_{A'_n}(\delta) \geq \epsilon) \leq \eta.
+        \]
+        Soit $\epsilon > 0, \eta > 0$. On a : $\forall \delta < \frac{1}{n}$,
+        \begin{align*}
+          \omega_{A'_n} (\delta) 
+          & = \underset{\vert s-t \vert \leq \delta}{\text{sup}} \vert A'_{s,n} - A'_{t,n} \vert \\
+          & = \delta \underset{1 \leq k \leq n}{\text{max}} \vert U_k \vert \\
+          & \leq \delta
+        \end{align*}
+        où la deuxième égalité vient du fait que $t \mapsto A'_{t,n}$ est affine sur les segments $[\frac{k-1}{n}, \frac{k}{n}[$, avec $1 \leq k \leq n$. Donc, si $\delta < \frac{1}{n}$, alors le module de continuité de $A'_n$ est atteint sur l'un de ces segments et vaut $\delta$ multiplié par le coefficient directeur de $A'_n$ sur ce segment. \\
+      
+        \noindent Ainsi, $\omega_{A'_n} (\delta) \leq \delta$. 
+        On choisit donc $\delta = \frac{\epsilon}{2}$ et $n_0 = 1$, d'où : 
+        \[
+        \forall n \geq 1, \quad P_n (A'_n : \omega_{A'_n}(\delta) \geq \epsilon) = 0 \leq \eta.
+        \]
+      \end{proof}
+      
+      
+      Nous donnons un nouveau critère de convergence des suites de processus $(\tilde{A}_n)_{n \geq 1}$ vers le mouvement brownien sur l'intervalle $[0,1]$. Ce critère nous permettra ensuite d'écrire une preuve alternive de la proposition précédente. 
+      
+      
+      \paragraph{Proposition 3.2.11} Supposons qu'il existe $\beta \geq 0, \alpha > \frac{1}{2}$ et $C>0$ tels que : $\forall 0 \leq s < t \leq 1, \forall n \geq 1, \forall \lambda > 0$, 
+      \[
+      P_n(\vert \tilde{A}_{t,n} - \tilde{A}_{s,n} \vert > \lambda) \leq \frac{C}{\lambda ^{4 \beta}} \vert t-s \vert ^{2 \alpha}.
+      \]
+      Alors, $(\tilde{A}_n)_{n \geq 1}$ converge vers $B$ sur l'intervalle $[0,1]$.
+      
+      
+      \begin{proof} Admise. Voir thm 13.5 \cite{pa} \end{proof}
+      
+      
+      \begin{proof}[Démonstration alternative du théorème 3.2.10] Soit $(U_k)_{k \geq 1}$ des v.a. $i.i.d.$ de loi $\mathcal{U}([-1,1])$. On a : $\mathbb{E}[U_1^2] = \frac{1}{3}$. \\
+      Pour tout $n \in \mathbb{N}^*$ et tout $t \in [0,1]$, on pose : 
+      \[
+      \tilde{A}_{t,n} = \sqrt{\frac{3}{n}} \left( \sum_{k=1}^{ \lfloor nt \rfloor } U_k + (nt - \lfloor nt \rfloor) U_{\lfloor nt \rfloor + 1} \right).
+      \]
+      Vérifions qu'il existe $\beta \geq 0, \alpha > \frac{1}{2}$ et $C>0$ tels que : $\forall 0 \leq s < t \leq 1, \forall n \geq 1, \forall \lambda > 0$, 
+      \[
+      P_n(\vert \tilde{A}_{t,n} - \tilde{A}_{s,n} \vert > \lambda) \leq \frac{C}{\lambda ^{4 \beta}} \vert t-s \vert ^{2 \alpha}.
+      \]
+      
+      \noindent Soient $0 \leq s < t \leq 1, \: n \geq 1$ et $\lambda > 0$. On a :
+      \begin{align*}
+        P_n(\vert \tilde{A}_{t,n} - \tilde{A}_{s,n} \vert \geq \lambda) 
+        & \leq P_n(\tilde{A}_{t,n} - \tilde{A}_{s,n} \geq \lambda) + P_n(\tilde{A}_{t,n} - \tilde{A}_{s,n} \leq -\lambda) \\
+        & = 2 P_n(\tilde{A}_{t,n} - \tilde{A}_{s,n} \geq \lambda)
+      \end{align*}
+      où la dernière égalité vient du fait que $\tilde{A}_{t,n} - \tilde{A}_{s,n} \overset{\text{loi}}{=} -(\tilde{A}_{t,n} - \tilde{A}_{s,n})$ car la loi $\mathcal{U}([-1,1])$ est symétrique. 
+      Or, 
+      \begin{align*}
+        P_n(\tilde{A}_{t,n} - \tilde{A}_{s,n} \geq \lambda)
+        & = P_n \left( \mathrm{e}^{q(\tilde{A}_{t,n} - \tilde{A}_{s,n})} \geq \mathrm{e}^{q \lambda} \right) \tag{pour $q>0$ fixé}\\
+        & \overset{\text{Markov}}{\leq} \mathbb{E}^{P_n} \left[ \mathrm{e}^{q(\tilde{A}_{t,n} - \tilde{A}_{s,n})} \right] \mathrm{e}^{-q \lambda}.
+      \end{align*}
+      
+      \noindent Par définition, on a :
+      \begin{align*}
+        \tilde{A}_{t,n} - \tilde{A}_{s,n}
+        & = \sqrt{\frac{3}{n}} \left( \sum_{k=1}^{ \lfloor nt \rfloor } U_k + (nt - \lfloor nt \rfloor) U_{\lfloor nt \rfloor + 1}
+        - \sum_{k=1}^{ \lfloor ns \rfloor } U_k - (ns - \lfloor ns \rfloor) U_{\lfloor ns \rfloor + 1} \right) \\
+        & = \sqrt{\frac{3}{n}} \sum_{k = \lfloor ns \rfloor + 1}^{ \lfloor nt \rfloor } U_k 
+        + \underbrace{\frac{\sqrt{3} \left( (nt - \lfloor nt \rfloor) U_{\lfloor nt \rfloor + 1} - (ns - \lfloor ns \rfloor) U_{\lfloor ns \rfloor + 1} \right)}{\sqrt{n}}}_{=:B_{s,t,n}}.
+      \end{align*}
+      
+      \noindent Soit $\epsilon > 0$. Comme $\forall \: 0 \leq u \leq 1, \: nu - \lfloor nu \rfloor < 1$ et $U_{\lfloor nu \rfloor + 1} \leq 1$, on a : $B_{s,t,n} \leq \frac{2 \sqrt{3}}{\sqrt{n}}$.
+      Donc $\forall n \geq n_1(\epsilon, q) := 12 \frac{q^2}{\epsilon^2}$, on a : $q \: B_{s,t,n} \leq \epsilon$. 
+      Dorénavant, on choisit un tel $n$. \\
+      
+      \noindent On a :
+      \begin{align*}
+        \mathbb{E}^{P_n} \left[ \mathrm{e}^{q(\tilde{A}_{t,n} - \tilde{A}_{s,n})} \right]
+        & = \mathbb{E}^{P_n} \left[ \mathrm{e}^{q \sqrt{\frac{3}{n}} \sum_{k = \lfloor ns \rfloor + 1}^{ \lfloor nt \rfloor } U_k \: + \: q B_{s,t,n}} \right] \\
+        & \leq \mathbb{E}^{P_n} \left[ \mathrm{e}^{q \sqrt{\frac{3}{n}} \sum_{k = \lfloor ns \rfloor + 1}^{ \lfloor nt \rfloor } U_k} \right] \mathrm{e}^{\epsilon}.
+      \end{align*}
+      
+      \noindent On pose $r = \lfloor nt \rfloor - \lfloor ns \rfloor$. On a alors :
+      \begin{align*}
+        \mathbb{E}^{P_n} \left[ \mathrm{e}^{q \sqrt{\frac{3}{n}} \sum_{k = \lfloor ns \rfloor + 1}^{ \lfloor nt \rfloor } U_k} \right]
+        & = \left( \mathbb{E}^{P_n} \left[ \mathrm{e}^{q \sqrt{\frac{3}{n}} U_1} \right] \right)^r \tag{car les $(U_k)_{k \geq 1}$ sont $i.i.d.$} \\
+        & = \left( \int_{-1}^1 \frac{1}{2} \mathrm{e}^{q \sqrt{\frac{3}{n}} u} \mathrm{d}u \right)^r \\
+        & = \left( \frac{ \mathrm{e}^{q \sqrt{\frac{3}{n}}} - \mathrm{e}^{-q \sqrt{\frac{3}{n}}}}
+        {2 q \sqrt{\frac{3}{n}}} \right)^r \\
+        & = \left( \frac{ \text{sinh}\left(q \sqrt{\frac{3}{n}}\right)}{q \sqrt{\frac{3}{n}}} \right)^r.
+      \end{align*}
+      
+      \noindent Ainsi, on a obtenu que :
+      \begin{align*}
+        P_n(\vert \tilde{A}_{t,n} - \tilde{A}_{s,n} \vert \geq \lambda) 
+        & \leq 2 \: \mathrm{e}^{\epsilon - q \lambda} \left( \frac{ \text{sinh}\left(q \sqrt{\frac{3}{n}}\right)}{q \sqrt{\frac{3}{n}}} \right)^r \\
+        & = 2 \: \text{$exp$} \left(\epsilon - q \lambda + r \text{ln} \left( \frac{ \text{sinh}\left(q \sqrt{\frac{3}{n}}\right)}{q \sqrt{\frac{3}{n}}} \right) \right).
+      \end{align*}
+      
+      \noindent Or, on sait que :
+      \[
+      \frac{ \text{sinh}\left(q \sqrt{\frac{3}{n}}\right)}{q \sqrt{\frac{3}{n}}}
+      = \frac{q \sqrt{\frac{3}{n}} + \frac{1}{6} \left(q \sqrt{\frac{3}{n}}\right)^3 + \text{o}\left( \left(q \sqrt{\frac{3}{n}}\right)^3 \right)}{q \sqrt{\frac{3}{n}}}
+      = 1 + \frac{q^2}{2n} + \text{o}\left( \frac{1}{n} \right)
+      \]
+      et
+      \[
+      \text{ln} \left( 1 + \frac{q^2}{2n} + \text{o}\left( \frac{1}{n} \right) \right) 
+      = \frac{q^2}{2n} + \text{o}\left( \frac{1}{n} \right).
+      \]
+      
+      \noindent Donc
+      \begin{align*}
+        P_n(\vert \tilde{A}_{t,n} - \tilde{A}_{s,n} \vert \geq \lambda) 
+        & \leq 2 \: \text{exp} \left( \epsilon - q \lambda + r \left( \frac{q^2}{2n} + \text{o}\left( \frac{1}{n} \right) \right) \right) \\
+        & = 2 \: \text{exp} \left( \epsilon - q \lambda + \frac{r}{n} \frac{q^2}{2} + \text{o}(1) \right) \tag{car $r = \lfloor nt \rfloor - \lfloor ns \rfloor$} \\
+        & = 2 \: \text{exp} \left( \epsilon - q \lambda + (t-s) \frac{q^2}{2} + \text{o}(1) \right) \tag{car $\frac{r}{n} = t-s + \text{o}(1)$} \\
+        & = 2 \: \text{exp} \left( \epsilon - q \lambda + (t-s) \frac{q^2}{2} + \epsilon \right)
+      \end{align*}
+      à partir d'un certain rang $n_2(\epsilon, q)$. \\
+      Dorénavant, on choisit $n \geq N(\epsilon, q) := \text{max} \{n_1(\epsilon, q), n_2(\epsilon, q)\}$. \\
+      
+      \noindent La fonction $f : x \mapsto \frac{t-s}{2}x^2 - \lambda x + 2 \epsilon$ atteint son minimum en $x^* = \frac{\lambda}{t-s} > 0$ et $f(x^*) = - \frac{\lambda^2}{2(t-s)} + 2 \epsilon$.
+      Comme $q$ était arbitraire jusqu'à mainteant, on peut choisir $q^* = x^*$ et on a :
+      \[
+      P_n(\vert \tilde{A}_{t,n} - \tilde{A}_{s,n} \vert \geq \lambda) 
+      \leq 2 \: \text{exp} \left( - \frac{\lambda^2}{2(t-s)} + 2 \epsilon \right)
+      = 2 \: \mathrm{e}^{2 \epsilon} \: \mathrm{e}^{- \frac{\lambda^2}{2(t-s)}}.
+      \]
+      
+      \noindent Par ailleurs, on remarque que $\forall a > 0, \exists C_a > 0, \forall x > 0$ on a : $\mathrm{e}^{-x} \leq C_a x^{-a}$. 
+      En prenant $a=2$, on observe que :
+      \begin{align*}
+        P_n(\vert \tilde{A}_{t,n} - \tilde{A}_{s,n} \vert \geq \lambda)
+        & \leq 2 \: \mathrm{e}^{2 \epsilon} \: C_2 \left( \frac{2(t-s)}{\lambda^2} \right)^2 \\
+        & = \frac{C}{\lambda^4} (t-s)^2
+      \end{align*}
+      avec $C := 8 \: \mathrm{e}^{2 \epsilon} \: C_2$. 
+      
+  \end{proof}
+  
+%-------------------------------------------------------------------------------------------------------------------------%
+%-------------------------------------------------------------------------------------------------------------------------%
+%-------------------------------------------------------------------------------------------------------------------------%
+	
+\chapter{Applications numériques}
+ Nous allons dans une dernière partie illustrer nos résultats du chapitre 2 grâce à la construction de nos processus du chapitre 3. 
+
+  \section{Trajectoires de $A_{t,n}$ pour différentes lois}
+    
+    \subsection{Un premier graphique}
+    
+      On commence par tracer, sur le même graphique, une trajectoire du mouvement brownien sur l'intervalle $[0,100]$ et une trajectoire, sur le même intervalle, de l'approximation du mouvement brownien en utilisant les lois $Student(3)$, $Student(4)$, $\mathcal{N}(0,1)$, $Rademacher$ et $\mathcal{U}[-1,1]$. 
+    
+      \noindent Cette partie ne vise pas à prouver que ces approximations tendent vers le mouvement brownien mais plutôt à illustrer nos résultats. 
+    
+<<>>=
+rm(list=ls())
+
+n<-100 # Nombre de variables utilisées pour simuler une fois A_{t,n}
+m<-10000 # Nombre de simulations de A_{t,n}
+t_max<-100 # Nombre de pas de temps
+estim <-1000
+
+#on décide d'estimer les moments 3 de nos lois pour ne pas biaiser les résultats suivants
+
+estim_moment3 <- function(estim){
+  phi1 <- rnorm(estim)
+  phi2 <- rnorm(estim)/(sqrt(rchisq(n,4)/4))
+  return(data.frame(moment3norm=mean(abs(phi1)^3), moment3stud4=mean(abs(phi2)^3)))
+}
+
+moment3norm=estim_moment3(estim)$moment3norm
+moment3stud4=estim_moment3(estim)$moment3stud4
+# ------------- Mouvement brownien -------------
+
+brown <- function(t_max) {
+  tps <- 1:t_max
+  tps <- tps[-1] - tps[-t_max] # On construit la suite tn - tn-1
+  w <- rnorm(t_max - 1, 0, sqrt(tps))
+  return(c(0, cumsum(w)))
+}
+
+bt <- brown(t_max)
+
+# ------------- Approximation avec des lois N(0,1) -------------
+
+brown_norm <- function(n, t, moment3stud4, moment3norm){ # t peut être un réel ou un vecteur
+  nt <- round(n*t) # Fonction partie entière
+  echantillon_normale <- rnorm(nt[length(nt)])
+  x <- echantillon_normale / sqrt(n)
+  cumx <- cumsum(x)
+  return(data.frame(echantillon = cumx[nt], borne_sup = 3*moment3norm / sqrt(nt)))
+  # On retourne une trajectoire utilisant des lois normales et une borne de Berry-Esseen 3*rho/(sigma^3 * sqrt(nt))
+}
+
+b_norm <- brown_norm(n, c(1:t_max), moment3stud4, moment3norm)
+
+# ------------- Approximation avec des lois Student(3) -------------
+
+brown_stud3 <- function(n, t, moment3stud4, moment3norm){
+  nt <- round(n*t) # Fonction partie entière
+  x <- (1 / sqrt(n)) * rnorm(nt[length(nt)]) / (sqrt(rchisq(nt[length(nt)], 3) / 3))
+  # x contient nt[length(nt)] simulations de la loi Student(3)
+  cumx <- cumsum(x)
+  sigma <- sqrt(3) # sqrt(k / (k-2))
+  return(data.frame(echantillon=cumx[nt] / sigma, borne_sup = 1))
+}
+
+b_stud3 <- brown_stud3(n, c(1:t_max), moment3stud4, moment3norm)
+
+# ------------- Approximation avec des lois Student(4) -------------
+
+brown_stud4 <- function(n, t, moment3stud4, moment3norm){
+  nt <- round(n*t) # Fonction partie entière
+  echantillon_student <- rnorm(nt[length(nt)]) / (sqrt(rchisq(nt[length(nt)], 4) / 4))
+  x <- (1 / sqrt(n)) * echantillon_student
+  # x contient nt[length(nt)] simulations de la loi Student(4)
+  cumx <- cumsum(x)
+  sigma <- sqrt(2) # sqrt(k / (k-2))
+  return(data.frame(echantillon = cumx[nt] / sigma, borne_sup = 3*moment3stud4 / (sigma^3*sqrt(nt))))
+}
+
+b_stud4 <- brown_stud4(n, c(1:t_max), moment3stud4, moment3norm)
+
+# ------------- Approximation avec des lois Rademacher -------------
+
+brown_rade <- function(n, t, moment3stud4, moment3norm){
+  nt <- round(n*t) # Fonction partie entière
+  x <- (2*rbinom(nt[length(nt)], 1, 1/2) - 1) / sqrt(n)
+  # x contient nt[length(nt)] simulations de la loi Rademacher
+  cumx <- cumsum(x)
+  return(data.frame(echantillon = cumx[nt], borne_sup = 1/sqrt(nt)))
+}
+
+b_rade <- brown_rade(n, c(1:t_max), moment3stud4, moment3norm)
+
+# ------------- Approximation avec des lois uniformes -------------
+
+brown_unif <- function(n, t, moment3stud4, moment3norm){
+  nt <- round(n*t) # Fonction partie entière
+  x <- runif(nt[length(nt)], -1, 1) / sqrt(n)
+  # x contient nt[length(nt)] simulations de la loi uniforme
+  cumx <- cumsum(x)
+  sigma <- 1/sqrt(3)
+  rho <- 1/4
+  return(data.frame(echantillon = cumx[nt] / sigma, borne_sup = (3*rho) / ((sigma^3) * sqrt(nt))))
+}
+
+b_unif <- brown_unif(n, c(1:t_max), moment3stud4, moment3norm)
+
+# ------------- Calcul des bornes du graphique des trajectoires -------------
+
+hist_min <- min(min(bt), min(b_norm), min(b_stud3), min(b_stud4), min(b_rade), min(b_unif))
+hist_max <- max(max(bt), max(b_norm), max(b_stud3), max(b_stud4), max(b_rade), max(b_unif))
+
+# ------------- Graphique des trajectoires -------------
+
+hist_brown <- function(t_max, bt, b_norm, b_stud3, b_stud4, b_rade, b_unif, hist_min, hist_max){
+  palette <- c("black", "tomato3", "orange", "green", "blue", "purple")
+  # création d'une palette de couleurs
+  par(mfrow = c(1, 1))
+  plot(1:t_max, bt, type = 'l', col = palette[1], xlab = 't', ylab = "Xt", 
+       ylim = c(hist_min,hist_max), main = "Approximations du mouvement brownien")
+  # mouvement brownien
+  lines(1:t_max, rep(0,t_max), lty = 3)
+  # droite horizontale y=0
+  lines(1:t_max, b_norm, type = 'l', col = palette[2])
+  # à l'aide de la N(0,1)
+  lines(1:t_max, b_stud3, type = 'l', col = palette[3])
+  # à l'aide de la Student(3)
+  lines(1:t_max, b_stud4, type = 'l', col = palette[4])
+  # à l'aide de la Student(4)
+  lines(1:t_max, b_rade, type = 'l', col = palette[5])
+  # à l'aide de la Rademacher
+  lines(1:t_max, b_unif, type = 'l', col = palette[6])
+  # à l'aide de la loi uniforme
+  
+  legend("bottomleft", c("Brownien", "N(0,1)", "Student(3)", "Student(4)", 
+        "Rademacher", "Uniforme"), col = palette, bg = "grey97", 
+        lwd = 1.5, box.lty = 0)
+}
+
+hist_brown(t_max, bt, b_norm$echantillon, b_stud3$echantillon, b_stud4$echantillon, b_rade$echantillon, b_unif$echantillon, hist_min, hist_max)
+@
+
+
+%-------------------------------------------------------------------------------------------------------------------------%
+
+
+    \subsection{Forme des amas de trajectoires de $A_{t,n}$}
+
+      On crée maintenant plusieurs graphiques contenant chacun $100$ trajectoires chacun. Le premier représente le mouvement brownien sur l'intervalle $[0,100]$. Les suivants représentent diverses approximations du mouvement brownien. 
+      \noindent À nouveau, le but de ces graphiques n'est pas de prouver la convergence des approximations $(A_{t,n})_{t \geq 0}$ vers le mouvement brownien mais plutôt de montrer que la forme des amas de trajectoires ressemble à la forme de $100$ trajectoires du mouvement brownien.
+
+<<>>=
+affiche_M_brownien <- function(n, M, t_max){
+  plot(1:t_max, bt, type = 'l', col = "grey", xlab = 't', ylab = "Xt", ylim = c(-3*sqrt(t_max),3*sqrt(t_max)) , main = "Mvt Brownien") 
+  
+  for(i in 1:(M-1)){
+    bt<-brown(t_max)
+    lines(1:t_max, bt, type='l', col="grey")
+  }
+  
+  lines(1:t_max , sqrt(1:t_max), col="black", lwd=2)
+  lines(1:t_max , -sqrt(1:t_max), col="black", lwd=2)
+  legend("topleft", c("Mvt Brownien", "t->sqrt(t)"), col = c("grey", "black"), bg = "grey97", lwd = 1.5, box.lty = 0)
+}
+
+affiche_M_approx <- function(n, M, t_max, loi, moment3stud4, moment3norm, nom_loi, couleur){
+  echantillon<-loi(n,c(1:t_max), moment3stud4, moment3norm)
+  plot(1:t_max, array(echantillon$echantillon), type = 'l', col = couleur, xlab = 't', ylab = "Xt", ylim = c(-3*sqrt(t_max),3*sqrt(t_max)), main = nom_loi) 
+  
+  for(i in 1:(M-1)){
+    echantillon<-loi(n,c(1:t_max), moment3stud4, moment3norm)
+    lines(1:t_max, echantillon$echantillon, type='l', col = couleur)
+  }
+  
+  lines(1:t_max , sqrt(1:t_max), col="black", lwd=2)
+  lines(1:t_max , -sqrt(1:t_max), col="black", lwd=2)
+  legend("topleft", c(nom_loi, "t->sqrt(t)"), col = c(couleur, "black"), bg = "grey97", lwd = 1.5, box.lty = 0)
+}
+
+par(mfrow = c(2, 3))
+
+affiche_M_brownien(n,100,t_max)
+affiche_M_approx(n,100,t_max, brown_unif, moment3stud4, moment3norm, "Loi Uniforme", "yellow")
+affiche_M_approx(n,100,t_max, brown_norm, moment3stud4, moment3norm, "Loi Normale", "orange")
+affiche_M_approx(n,100,t_max, brown_stud3, moment3stud4, moment3norm, "Student 3", "pink")
+affiche_M_approx(n,100,t_max, brown_stud4, moment3stud4, moment3norm, "Student 4", "blue")
+affiche_M_approx(n,100,t_max, brown_rade, moment3stud4, moment3norm, "Rademacher", "green")
+@
+
+
+%-------------------------------------------------------------------------------------------------------------------------%
+%-------------------------------------------------------------------------------------------------------------------------%
+
+
+  \section{Comparaison des vitesses de convergence}
+    
+    On rappelle que dans le chapitre précédent, on a vu que les marginales du processus $(A_{t,n})_{t \geq 0}$ tendent vers celles du mouvement brownien quand le paramètre $n \rightarrow \infty$. Pour évaluer la vitesse de cette convergence, on a comparé les fonctions de répartition de $A_{t,n}$ et de la loi $\mathcal{N}(0,t)$, à $t$ et $n$ fixés. 
+    
+    \noindent En pratique, pour obtenir la $f.d.r.$ de $A_{t,n}$, on a besoin de $m$ observations de cette variable aléatoire. Par le théorème de Glivenko-Cantelli, on obtient alors la convergence de la $f.d.r.$ empirique de $A_{t,n}$, calculée à partir de $(A_{t,n}^{(1)}, \dots, A_{t,n}^{(m)})$, vers la $f.d.r.$ (théorique) de $A_{t,n}$. 
+    
+    \noindent Cela peut donc être intéressant de faire varier les paramètres $n$ et $m$ et d'observer la vitesse de convergence de la $f.d.r.$ empirique de $A_{t,n}$ vers la $f.d.r.$ de la loi $\mathcal{N}(0,t)$.
+      
+<<>>=
+# ------------- Fonction de densité et de répartition de la variable A_{t,n}, à t fixé -------------
+
+# On choisit un certain réel t qui est fixé
+
+# La fonction estim_fct_empirique trace 2 graphiques : 
+# 1 - la fonction de densité empirique de A_{t,n} ;
+# 2 - la f.d.r. empirique de A_{t,n} et la f.d.r. d'une N(0,t) encadrée par la borne de Berry-Esseen
+# Elle renvoie l'écart maximal trouvé entre la f.d.r. empirique et la f.d.r. de la loi N(0,t)
+
+estim_fct_empirique <- function(brown_simu, m, n, t, moment3stud4, moment3norm){
+  vble <- numeric(length=m)
+  for (i in 1:m){
+    vble[i] <- brown_simu(n,t, moment3stud4, moment3norm)$echantillon
+    # vble[i] contient une simulation de A_{t,n}
+  }
+  par(mfrow = c(1, 2))
+  hist(vble, breaks=40, freq=FALSE, xlim=c(-10,10), ylim=c(0,0.2), main = "Densité empirique de A_{t,n}", xlab = 'x', ylab = "Densité")
+  # Cet histogramme resprésente la densité empirique de A_{t,n}
+  box()
+  abs <- seq(-15,15,0.01)
+  lines(abs, dnorm(abs,0,sqrt(t)))
+  # On trace sur l'histogramme la fonction de densité d'une loi N(0,t)
+  fdr_emp <- numeric(length=length(abs))
+  ecart <- numeric(length=length(abs))
+  j<-1
+  for (i in abs){
+    fdr_emp[j] <- sum(vble<=i)/m
+    ecart[j] <- abs(fdr_emp[j] - pnorm(i,0,sqrt(t)))
+    j<-j+1
+  }
+  borne_sup_emp <- max(ecart)
+  borne_berry_essen <- brown_simu(n,t, moment3stud4, moment3norm)$borne_sup
+  plot(abs,fdr_emp, type="l",col="red", main = "Fdr empirique de A_{t,n}", xlab = 'x', ylab = 'F')
+  lines(abs,pnorm(abs,0,sqrt(t)), col="green")
+  lines(abs, pnorm(abs,0,sqrt(t)) + brown_simu(n,t, moment3stud4, moment3norm)$borne_sup, col='blue')
+  lines(abs, pnorm(abs,0,sqrt(t)) - brown_simu(n,t, moment3stud4, moment3norm)$borne_sup, col='blue')
+  legend("topleft", c("Fdr_emp", "Fdr N(0,t)", "Borne B-E"), col = c("red", "green", "blue"), bg = "grey97", 
+        lwd = 1.5, box.lty = 0)
+  return(data.frame(sup_empirique = borne_sup_emp, sup_berry_essen = borne_berry_essen))
+}
+@
+
+
+%-------------------------------------------------------------------------------------------------------------------------%
+
+
+    \subsection{Variation du paramètre $n$ sur l'exemple de la $Student(4)$}
+        
+      Dans cette section, les variables $(U_k)_{k \geq 1}$ de la définition de $A_{t,n}$ sont $i.i.d.$ de loi $Student(4)$. On choisit $t=10$, $m=100$ et on fait varier le paramètre $n$.
+      
+      \noindent Ainsi, pour $n=100$ :
+
+<<>>=
+estim_fct_empirique(brown_stud4,100,100,10, moment3stud4, moment3norm)
+@
+      
+      \newpage
+      \noindent Pour $n=1000$ :
+
+<<>>=
+estim_fct_empirique(brown_stud4,100,1000,10, moment3stud4, moment3norm)
+@
+
+      \newpage
+      \noindent Pour $n=10000$ :
+
+<<>>=
+estim_fct_empirique(brown_stud4,100,10000,10, moment3stud4, moment3norm)
+@
+
+
+%-------------------------------------------------------------------------------------------------------------------------%
+
+
+    \subsection{Variation du paramètre $m$ sur l'exemple de la $Student(4)$}
+        
+      Dans cette section, on utilise à nouveau des lois de Student($4$) mais on fait varier le paramètre $m$ et non plus $n$. On choisit $t=10$, $n=100$.
+      
+      \noindent Pour $m=100$ :
+      
+<<>>=
+estim_fct_empirique(brown_stud4,100,100,10, moment3stud4, moment3norm)
+@
+
+      \newpage
+      \noindent Pour $m=1000$ :
+
+<<>>=
+estim_fct_empirique(brown_stud4,1000,100,10, moment3stud4, moment3norm)
+@
+
+      \newpage
+      \noindent Pour $m=10000$ :
+
+<<>>=
+estim_fct_empirique(brown_stud4,10000,100,10, moment3stud4, moment3norm)
+@
+      
+      \paragraph{Remarque}
+        Généralement, on observe que $m$ a plus d'influence que $n$ sur la convergence de la $f.d.r.$ empirique de $A_{t,n}$ vers la $f.d.r.$ d'une $\mathcal{N}(0,t)$. 
+      
+      \paragraph{Remarque}
+        Quand $m$ est petit, l'écart entre la $f.d.r.$ empirique de $A_{t,n}$ et la $f.d.r.$ d'une $\mathcal{N}(0,t)$ peut dépasser la borne de Berry-Esseen. En effet, bien que la $f.d.r.$ empirique de $A_{t,n}$ tende vers sa $f.d.r.$ théorique (par le théorème de Glivenko-Cantelli), cette convergence n'est pas forcément assez rapide. 
+
+
+%-------------------------------------------------------------------------------------------------------------------------%
+
+
+    \subsection{Autres exemples}
+      
+      Dans cette section, on fixe la valeur $n=100$ et on fait varier le paramètre $m$ pour d'autres approximations du mouvement brownien sur $[0,100]$. 
+      
+      \noindent Pour cela, on modifie la fonction $estim\_fct\_empirique$ précédente. 
+
+<<>>=
+# ------------- Fonction de répartition empirique de la variable A_{t,n}, à t et n fixés -------------
+
+# On modifie la fonction estim_fct_empirique 
+
+estim_fct_empirique2 <- function(brown_simu, m, n, t, moment3stud4, moment3norm,titre){
+  vble <- numeric(length=m)
+  for (i in 1:m){
+    vble[i] <- brown_simu(n,t, moment3stud4, moment3norm)$echantillon
+    # vble[i] contient une simulation de A_{t,n}
+  }
+  #box()
+  abs <- seq(-15,15,0.01)
+  fdr_emp <- numeric(length=length(abs))
+  ecart <- numeric(length=length(abs))
+  j<-1
+  for (i in abs){
+    fdr_emp[j] <- sum(vble<=i)/m
+    ecart[j] <- abs(fdr_emp[j] - pnorm(i,0,sqrt(t)))
+    j<-j+1
+  }
+  borne_sup_emp <- max(ecart)
+  plot(abs,fdr_emp, type="l",col="red", main = titre, xlab = 'x', ylab = 'F')
+  lines(abs,pnorm(abs,0,sqrt(t)), col="green")
+  lines(abs, pnorm(abs,0,sqrt(t)) + brown_simu(n,t, moment3stud4, moment3norm)$borne_sup, col='blue')
+  lines(abs, pnorm(abs,0,sqrt(t)) - brown_simu(n,t, moment3stud4, moment3norm)$borne_sup, col='blue')
+  #legend("topleft", c("Fdr_emp", "Fdr N(0,t)"), col = c("red", "green"), bg = "grey97", 
+        #lwd = 1.5, box.lty = 0)
+  return(borne_sup_emp)
+}
+@
+
+      \noindent On appelle maintenant cette fonction plusieurs fois, pour $m=100, \: 1000$ et $10000$ et avec différentes lois. 
+
+<<>>=
+m1=100
+m2=1000
+m3=10000
+ecart_emp <- matrix(rep(0, 12), nrow = 4)
+borne_berry_esseen <- rep(0, 4)
+
+
+legende<-function(x,y,z,ecart_emp,borne_berry_esseen){
+  legend("topleft", c(paste0("sup_emp = ", toString(round(ecart_emp[x,y], digits = 8))), paste0("borne_theo = ", toString(round(borne_berry_esseen[z], digits = 8)))), bg = "grey97", box.lty = 0)
+}
+
+fonction_incroyable<-function(x,z,loi)
+{
+  ecart_emp[x,1]<-estim_fct_empirique2(loi, m1 ,n,t,moment3stud4,moment3norm,paste0("t",toString(m1)) )
+  legend(x,1,z,ecart_emp, borne_berry_esseen)
+  ecart_emp[x,2]<-estim_fct_empirique2(loi, m2 ,n,t,moment3stud4,moment3norm,paste0("t",toString(m2)) )
+  legend(x,2,z,ecart_emp, borne_berry_esseen)
+  ecart_emp[x,3]<-estim_fct_empirique2(loi, m3 ,n,t,moment3stud4,moment3norm,paste0("t",toString(m3)) )
+  legend(x,3,z,ecart_emp, borne_berry_esseen)
+}
+
+  
+  par(mfrow = c(2,3))
+  
+  # student(4)
+  borne_berry_esseen[1] <- brown_stud4(n,t, moment3stud4, moment3norm)$borne_sup
+  fonction_incroyable(1,1,brown_stud4) 
+  
+  # normale standard
+  borne_berry_esseen[2] <- brown_norm(n,t, moment3stud4, moment3norm)$borne_sup
+  fonction_incroyable(2,2,brown_norm)
+  
+  par(mfrow = c(2,3))
+  
+  # Rademacher
+  borne_berry_esseen[3] <- brown_rade(n,t, moment3stud4, moment3norm)$borne_sup
+  fonction_incroyable(3,3,brown_rade)
+  
+  # uniforme([-1,1])
+  borne_berry_esseen[4] <- brown_unif(n,t, moment3stud4, moment3norm)$borne_sup
+  fonction_incroyable(4,4,brown_unif)
+  
+@
+
+
+%-------------------------------------------------------------------------------------------------------------------------%
+
+
+    \subsection{Interprétation}
+      Pour contextualiser notre travail, dans un premier temps nous avons fait varier le paramètre $n$ du processus $A_{t,n}$. $n$ correspond au nombre de variables utilisées pour approximer une trajectoire du mouvement brownien sur un intervalle de taille $1$. On a prouvé dans le chapitre $3$ que les marginales du processus $A_{t,n}$ à différents temps $t$ convergeaient en loi quand $n \rightarrow \infty$ vers la loi multi dimensionnelle du mouvement brownien standard à ces mêmes temps $t$.
+Pour illustrer cette convergence en loi de notre processus à un temps $t_0$ fixé, nous avons besoin d’estimer la fonction de répartition théorique de $A_{t_0,n}$. 
+Cela ne dépend plus uniquement du paramètre $n$, mais d’un paramètre $m$ correspondant au nombre de simulations de notre variable $A_{t_0,n}$ qui est indispensable pour obtenir une estimation consistante de la $f.d.r.$ de $A_{t_0,n}$. En effet, à $n$ fixé dans notre cas, le théorème de Glivenko-Cantelli nous donne la convergence en norme infini de la $f.d.r.$ empirique $F_{t_0,n,m}$ vers la $f.d.r.$ $F_{t_0,n}$ quand $m \rightarrow \infty$ de $A_{t_0,n}$.
+Ici il y a donc une double convergence pour illustrer notre approximation du mouvement brownien, celle en $n$, puis en $m$.
+En faisant varier $n$ à partir d’un certain seuil élevé pour $m$ fixé, nous observons que la convergence en loi de notre $f.d.r.$ $A_{t_0,n,m}$ vers celle de la $\mathcal{N}(0,1)$ n’est pas plus précise lorsque $n$ augmente considérablement. On se rend compte que le mouvement brownien est déjà « capturé » grossièrement pour $n=100$ variables (encore une fois à $m$ fixé), bien que notre borne sup empirique reste relativement élevé par rapport à la borne de Berry-Essen.
+On en a déduit que ces écarts seraient principalement dus au faible nombre de simulations $m$ de la variable $A_{t_0,n}$, en raison de la convergence encore trop faible de Glivenko-Cantelli pour ce $m$ là.
+Ceci étant assez logique, la convergence de GC étant presque sure et donc très forte, il faut un plus grand nombre de données avant de concrétiser cette convergence très précise. En faisant augmenter $m$ par pallier, on observe que la convergence est de moins en moins imprécise et ce sans impact de la croissance en $n$.
+On obtient une précision tout à fait satisfaisante de notre approximation marginale du mouvement brownien.
+Il est nécessaire de remarquer qu’on ne montre pas empiriquement la convergence uniforme de notre processus vers le mouvement brownien.
+
+      
+
+
+
+\nocite{pe}
+\nocite{w}
+\nocite{lien1}
+\nocite{lien2}
+\nocite{lien4}
+
+\bibliography{sample}
+  
+      
+\end{document}
